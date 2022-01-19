@@ -14,9 +14,10 @@ open_word_list(Filename) ->
 generate_map(Possible, Impossible) ->
     All = Possible ++ Impossible,
     Map = maps:from_keys(lists:seq(0,242), []),
-    lists:foldl(fun(Word, Acc) ->  map_word(All, Word, Acc) end,
-                Map,
-                Possible).
+    WordMap = lists:foldl(fun(Word, Acc) ->  map_word(All, Word, Acc) end,
+                          Map,
+                          Possible),
+    maps:map(fun(_K, V) -> ordsets:from_list(V) end, WordMap).
 
 map_word(All, Word, Map) ->
     Scores = lists:foldl(fun(Guess, Acc) ->
@@ -25,13 +26,12 @@ map_word(All, Word, Map) ->
                          end,
                          [],
                          All),
-    Map = lists:foldl(fun(Score, Acc) ->
-                              #{Score := SoFar} = Acc,
-                              Acc#{Score := [Word|SoFar]}
-                      end,
-                      Map,
-                      Scores),
-    maps:map(fun(_K, V) -> ordsets:from_list(V) end, Map).
+    lists:foldl(fun(Score, Acc) ->
+                        #{Score := SoFar} = Acc,
+                        Acc#{Score := [Word|SoFar]}
+                end,
+                Map,
+                Scores).
 
 score_guess(Guess, Word) ->
     {UsedGuess, UsedWord} = score_correct(Guess, Word),
@@ -40,9 +40,9 @@ score_guess(Guess, Word) ->
 score_correct(Guess, Word) ->
     {RevG, RevW} = lists:foldl(fun({M, M}, {GS, WS}) ->
                                        %% purposefully non-matching for later
-                                       {[$2|GS], [2,WS]};
+                                       {[$2|GS], [2|WS]};
                                   ({G, W}, {GS, WS}) ->
-                                       {[G|GS], [W,WS]}
+                                       {[G|GS], [W|WS]}
                                end,
                                {[], []},
                                lists:zip(Guess,Word)),
@@ -67,7 +67,6 @@ score_rest(Guess, Word) ->
 
 format_score(Score) ->
     Number = integer_to_list(Score, 3),
-
     io:format("~ts~n",
               [[ case P of
                      $2 -> 16#1f7e9;
@@ -75,3 +74,12 @@ format_score(Score) ->
                      $0 -> 16#2b1c
                  end
                  || P <-  lists:duplicate(5-length(Number), $0) ++ Number]]).
+
+words_for_scores(Scores, Map) ->
+    #{242 := AllWords} = Map,
+    lists:foldl(fun(Score, Acc) ->
+                        #{Score := Words} = Map,
+                        ordsets:intersection(Words, Acc)
+                end,
+                AllWords,
+                Scores).
