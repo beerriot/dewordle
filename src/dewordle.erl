@@ -56,7 +56,7 @@ score_rest(Guess, Word) ->
                                                fun(L) -> L =/= G end,
                                                Acc) of
                                             {Head, [G|Tail]} ->
-                                                {[$1|Score], [Head,1|Tail]};
+                                                {[$1|Score], Head++[1|Tail]};
                                             _ ->
                                                 {[$0|Score], Acc}
                                         end
