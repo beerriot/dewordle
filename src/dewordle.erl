@@ -64,3 +64,14 @@ score_rest(Guess, Word) ->
                                 {[], Word},
                                 Guess),
     lists:reverse(RevScore).
+
+format_score(Score) ->
+    Number = integer_to_list(Score, 3),
+
+    io:format("~ts~n",
+              [[ case P of
+                     $2 -> 16#1f7e9;
+                     $1 -> 16#1f7e8;
+                     $0 -> 16#2b1c
+                 end
+                 || P <-  lists:duplicate(5-length(Number), $0) ++ Number]]).
