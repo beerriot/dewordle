@@ -83,3 +83,40 @@ words_for_scores(Scores, Map) ->
                 end,
                 AllWords,
                 Scores).
+
+scores_containing_word(Word, Map) ->
+    maps:fold(fun(K, V, Acc) ->
+		      case lists:member(Word, V) of
+			  true ->
+			      [K|Acc];
+			  false ->
+			      Acc
+		      end
+	      end,
+	      [],
+	      Map).
+
+words_with_same_score_as(Word, Map) ->
+    #{242 := AllWords} = Map,
+    maps:fold(fun(_, V, Acc) ->
+		      case lists:member(Word, V) of
+			  true ->
+			      ordsets:intersection(V, Acc);
+			  false -> Acc
+		      end
+	      end,
+	      AllWords,
+	      Map).
+
+classify_words(Map) ->
+    #{242 := AllWords} = Map,
+    lists:foldl(fun(Word, {Single, Multiple}) ->
+			case words_with_same_score_as(Word, Map) of
+			    [Word] ->
+				{[Word|Single], Multiple};
+			    Many ->
+				{Single, [{Word,Many}|Multiple]}
+			end
+		end,
+		{[], []},
+		AllWords).
