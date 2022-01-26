@@ -13,7 +13,8 @@ open_word_list(Filename) ->
 
 generate_map(Possible, Impossible) ->
     All = Possible ++ Impossible,
-    Map = maps:from_keys(lists:seq(0,242), []),
+    Map = maps:from_list(lists:zip(lists:seq(0,242),
+                         lists:duplicate(243, []))),
     WordMap = lists:foldl(fun(Word, Acc) ->  map_word(All, Word, Acc) end,
                           Map,
                           Possible),
