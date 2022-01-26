@@ -5,13 +5,13 @@ var board = square.parentElement;
 square.remove();
 
 var white = square.cloneNode(true);
-white.setAttribute("class", "incorrect");
+white.classList.add("incorrect");
 
 var yellow = square.cloneNode(true);
-yellow.setAttribute("class", "almost");
+yellow.classList.add("almost");
 
 var green = square.cloneNode(true);
-green.setAttribute("class", "correct");
+green.classList.add("correct");
 
 // example board
 board.append(white.cloneNode(true));
