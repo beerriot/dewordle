@@ -3,6 +3,7 @@
   <head>
     <link rel="stylesheet" href="/pure-min.css">
     <link rel="stylesheet" href="/grids-response-min.css">
+    <link rel="stylesheet" href="/dewordle.css">
     <meta property="og:type" content="website" />
     <meta property="og:title" content="DeWordle" />
     <meta property="og:url" content="https://dewordle.beerriot.com/" />
@@ -22,19 +23,16 @@
 	  identified by their colored-square patterns alone.
 	</p>
       </div>
-      <div id="gameboard" class="pure-u-1">
-	<div class="pure-g">
-	  <div id="gamerow" class="pure-u-1">
-	    <div class="pure-g">
-	      <div id="gamesquare" class="pure-u-1-5">
-		<svg width="100" height="100">
-		  <rect x="3%" y="3%" width="94%" height="94%" fill="black" />
-		</svg>
-	      </div>
-	    </div>
+      <div class="pure-u-1">
+	<div id="gameboard" class="pure-g">
+	  <div id="gamesquare" class="pure-u-1-5">
+	    <svg width="100" height="100">
+	      <rect x="3%" y="3%" width="94%" height="94%" fill="none" />
+	    </svg>
 	  </div>
 	</div>
       </div>
+      <script language="javascript" src="/map.js"></script>
       <script language="javascript" src="/dewordle.js"></script>
   </body>
 </html>

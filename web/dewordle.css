@@ -1,0 +1,11 @@
+.incorrect {
+    background-color: #cccccc;
+}
+
+.almost {
+    background-color: #ffff00;
+}
+
+.correct {
+    background-color: #00ff00;
+}
