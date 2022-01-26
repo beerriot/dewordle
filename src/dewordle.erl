@@ -121,3 +121,13 @@ classify_words(Map) ->
 		end,
 		{[], []},
 		AllWords).
+
+write_json_map(Filename, Map) ->
+    Json = [$[,
+	    lists:join($,, [json_word_list(maps:get(N, Map))
+			    || N <- lists:seq(0, 242)]),
+	    $]],
+    file:write_file(Filename, Json).
+
+json_word_list(Words) ->
+    [$[, lists:join($,, [ [$", Word, $"] || Word <- Words]), $]].
