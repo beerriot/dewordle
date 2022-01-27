@@ -21,6 +21,10 @@ var addrow = document.getElementById("addrow");
 addrow.onpointerdown = inputDownHandler;
 addrow.onpointerup = addrowUp;
 
+var share = document.getElementById("share");
+share.onpointerdown = inputDownHandler;
+share.onpointerup = shareUp;
+
 function addrowUp(ev) {
     if (addPattern(pattern(build))) {
         for (var i = 0; i < 5; i++) {
@@ -98,13 +102,52 @@ function endGame() {
         document.getElementById("win").removeAttribute("style");
 
         addrow.setAttribute("style", "display: none;");
-        document.getElementById("share").removeAttribute("style");
+        share.removeAttribute("style");
     } else {
         // lose
         wordsLeft.innerText = "no";
         addrow.setAttribute("style", "display: none;");
         document.getElementById("done").removeAttribute("style");
     }
+}
+
+function shareUp() {
+    navigator.clipboard.writeText("I found a "+patterns.length+" pattern DeWordle!"+gameDiagram()).then(function() { alert("Copied to clipboard!"); });
+}
+
+const emoji = {
+    "incorrect-light": String.fromCodePoint(0x2b1c),
+    "incorrect-dark": String.fromCodePoint(0x2b1b),
+    "correct-regular": String.fromCodePoint(0x1f7e9),
+    "correct-color-blind": String.fromCodePoint(0x1f7e7),
+    "almost-regular": String.fromCodePoint(0x1f7e8),
+    "almost-color-blind": String.fromCodePoint(0x1f7e6)
+};
+
+function gameDiagram() {
+    var theme = document.body.classList.contains("darkmode") ?
+        "-dark" : "-light";
+    var palette = document.body.classList.contains("colorblind") ?
+        "-color-blind" : "-regular";
+
+    var diagram = "";
+    var squares = board.children;
+    for (var i = 0; i < squares.length; i++) {
+        if (i % 5 == 0) {
+            diagram += "\n";
+        }
+
+        var square = squares[i];
+        if (square.classList.contains("correct")) {
+            diagram += emoji["correct"+palette];
+        } else if (square.classList.contains("almost")) {
+            diagram += emoji["almost"+palette];
+        } else {
+            diagram += emoji["incorrect"+theme];
+        }
+    }
+
+    return diagram;
 }
 
 var patterns = [];
