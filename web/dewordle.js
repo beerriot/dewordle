@@ -22,20 +22,26 @@ addrow.onpointerdown = inputDownHandler;
 addrow.onpointerup = addrowUp;
 
 function addrowUp(ev) {
-    addPattern(pattern(build));
+    if (addPattern(pattern(build))) {
+        for (var i = 0; i < 5; i++) {
+	    var clone = build[i].cloneNode(true);
+	    if (!(clone.classList.contains("correct")
+	          || clone.classList.contains("almost"))) {
+	        clone.classList.add("incorrect");
+	    }
 
-    for (var i = 0; i < 5; i++) {
-	var clone = build[i].cloneNode(true);
-	if (!(clone.classList.contains("correct")
-	      || clone.classList.contains("almost"))) {
-	    clone.classList.add("incorrect");
-	}
+	    build[0].before(clone);
 
-	build[0].before(clone);
-
-	build[i].classList.remove("correct");
-	build[i].classList.remove("almost");
-	build[i].classList.remove("incorrect");
+	    build[i].classList.remove("correct");
+	    build[i].classList.remove("almost");
+	    build[i].classList.remove("incorrect");
+        }
+    } else {
+        for (var i = 0; i < 5; i++) {
+            build[i].onpointerdown = null;
+            build[i].onpointerup = null;
+        }
+        build = [];
     }
 }
 
@@ -75,6 +81,30 @@ function addPattern(pattern) {
     remainingWords = remainingWords.filter(
 	function (w) { return words.includes(w); });
     displayRemaining();
+
+    if (remainingWords.length <= 1) {
+        endGame();
+        return false;
+    } else {
+        return true;
+    }
+}
+
+function endGame() {
+    if (remainingWords.length == 1) {
+        // win
+        document.getElementById("status").setAttribute("style", "display: none;");
+        document.getElementById("winword").innerText = dict.words[remainingWords[0]];
+        document.getElementById("win").removeAttribute("style");
+
+        addrow.setAttribute("style", "display: none;");
+        document.getElementById("share").removeAttribute("style");
+    } else {
+        // lose
+        wordsLeft.innerText = "no";
+        addrow.setAttribute("style", "display: none;");
+        document.getElementById("done").removeAttribute("style");
+    }
 }
 
 var patterns = [];

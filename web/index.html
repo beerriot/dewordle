@@ -25,40 +25,48 @@
 	    alone.
 	  </p>
         </div>
-        <div class="pure-u-1-2">
-	  <div class="tapme centerme">
-            <input type="checkbox" id="darkmode">
-            <label for="darkmode">Dark Mode</label>
+        <div id="gamecontent">
+          <div class="pure-u-1-2">
+	    <div class="tapme centerme">
+              <input type="checkbox" id="darkmode">
+              <label for="darkmode">Dark Palette</label>
+            </div>
           </div>
-        </div>
-        <div class="pure-u-1-2">
-          <div class="tapme centerme">
-	    <input type="checkbox" id="colorblind">
-            <label for="colorblind">Color-blind Mode</label>
+          <div class="pure-u-1-2">
+            <div class="tapme centerme">
+	      <input type="checkbox" id="colorblind">
+              <label for="colorblind">Color-blind Palette</label>
+            </div>
           </div>
-        </div>
-        <div class="pure-u-1">
-	  <div id="gameboard" class="pure-g">
-	    <div id="gamesquare" class="pure-u-1-5">
-	      <svg viewBox="0 0 100 100">
-	        <rect width="100%" height="100%" fill="none" />
-	      </svg>
+          <div class="pure-u-1">
+	    <div id="gameboard" class="pure-g">
+	      <div id="gamesquare" class="pure-u-1-5">
+	        <svg viewBox="0 0 100 100">
+	          <rect width="100%" height="100%" fill="none" />
+	        </svg>
+	      </div>
 	    </div>
-	  </div>
+          </div>
+          <div class="pure-u-1-3">
+            <div id="reset">&#x1f5d1;</div>
+          </div>
+          <div class="pure-u-1-3">
+            <div class="tapme centerme">
+	      <label id="status"><span id="wordsleft">???</span><br />words<br />remaining</label>
+              <label id="win" style="display: none;">You win!<br /><span id="winword"></span></label>
+            </div>
+          </div>
+          <div class="pure-u-1-3">
+	    <div id="addrow">&#x2795;</div>
+            <div id="share" style="display: none;">&#x1f4cb;</div>
+            <div id="done" style="display: none;">&#x274c;</div>
+          </div>
         </div>
         <div class="pure-u-1">
-	  <div id="addrow">&#x2795;</div>
-        </div>
-        <div class="pure-u-1">
-	  <div class="tapme centerme">
-	    <label>Words remaining: <span id="wordsleft">???</span></label>
-	  </div>
 	  <div class="tapme centerme">
 	    <input type="checkbox" id="showwords">
             <label>Show words</label>
 	  </div>
-        </div>
-        <div class="pure-u-1">
 	  <div id="remainingwords" style="display: none;" class="centerme"></div>
         </div>
       </div>

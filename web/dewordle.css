@@ -43,7 +43,7 @@ svg {
     margin: 3px;
 }
 
-#addrow {
+#addrow, #reset, #share, #done {
     text-align: center;
     font-size: 64pt;
 }
@@ -70,7 +70,7 @@ svg {
     padding: 5px;
 }
 
-#gameboard {
+#gamecontent {
     margin: 0 auto;
     max-width: 400px;
 }
