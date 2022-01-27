@@ -75,6 +75,9 @@ function addPattern(pattern) {
     remainingWords = remainingWords.filter(
 	function (w) { return words.includes(w); });
     wordsLeft.innerText = ""+remainingWords.length;
+
+    document.getElementById("remainingwords").innerText = remainingWords.map(
+	function(w) { return dict.words[w]; }).join(", ");
 }
 
 var patterns = [];
@@ -96,5 +99,13 @@ document.getElementById("colorblind").onchange = function() {
 	document.body.classList.add("colorblind");
     } else {
 	document.body.classList.remove("colorblind");
+    }
+}
+
+document.getElementById("showwords").onchange = function() {
+    if (this.checked) {
+	document.getElementById("remainingwords").removeAttribute("style");
+    } else {
+	document.getElementById("remainingwords").setAttribute("style", "display: none;");
     }
 }
