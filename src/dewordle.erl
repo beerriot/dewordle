@@ -128,7 +128,7 @@ write_json_map(Filename, Map) ->
 		  lists:zip(Words, lists:seq(0, length(Words)-1))),
     Json = [${,
 	    "\"words\":", json_word_list(Words), $,,
-	    "\"map\":",
+	    "\"map64\":",
 	    $[,
 	    lists:join($,, [json_word_map(maps:get(N, Map), WordIndex)
 			    || N <- lists:seq(0, 242)]),
@@ -140,6 +140,21 @@ json_word_list(Words) ->
     [$[, lists:join($,, [ [$", Word, $"] || Word <- Words]), $]].
 
 json_word_map(Words, Index) ->
-    [$[,
-     lists:join($,, [integer_to_list(maps:get(W, Index)) || W <- Words]),
-     $]].
+    json_word_map(Words, Index, 0, 0, []).
+
+json_word_map([Word|Words], Index, Byte, ByteAcc, Acc) ->
+    I = maps:get(Word, Index),
+    case I div 8 of
+        Byte ->
+            json_word_map(Words, Index, Byte,
+                          ByteAcc bor (1 bsl (I rem 8)),
+                          Acc);
+        Future ->
+            json_word_map([Word|Words], Index, I div 8, 0,
+                          lists:duplicate(Future-Byte-1, 0)
+                          ++ [ByteAcc|Acc])
+    end;
+json_word_map([], Index, Byte, ByteAcc, Acc) ->
+    FinalAcc = lists:duplicate((maps:size(Index) div 8)-Byte, 0)
+        ++ [ByteAcc|Acc],
+    [$", base64:encode(lists:reverse(FinalAcc)), $"].

@@ -1,4 +1,19 @@
 // 'var dict' comes from map.js
+dict.map = dict.map64.map(unpackBase64);
+
+function unpackBase64(str) {
+    var bin = atob(str);
+    var words = [];
+    for (var i = 0; i < bin.length; i++) {
+        var b = bin.charCodeAt(i);
+        for (var j = 0; j < 8; j++) {
+            if (b & (1 << j)) {
+                words.push(j + i * 8);
+            }
+        }
+    }
+    return words;
+}
 
 var square = document.getElementById("gamesquare");
 var board = square.parentElement;
