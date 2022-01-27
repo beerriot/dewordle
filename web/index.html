@@ -24,10 +24,16 @@
 	</p>
       </div>
       <div class="pure-u-1-2">
-	<input type="checkbox" id="darkmode"> Dark Mode</input>
+	<div class="tapme centerme">
+          <input type="checkbox" id="darkmode">
+          <label for="darkmode">Dark Mode</label>
+        </div>
       </div>
       <div class="pure-u-1-2">
-	<input type="checkbox" id="colorblind"> Color-blind Mode</input>
+        <div class="tapme centerme">
+	  <input type="checkbox" id="colorblind">
+          <label for="colorblind">Color-blind Mode</label>
+        </div>
       </div>
       <div class="pure-u-1">
 	<div id="gameboard" class="pure-g">
@@ -41,13 +47,18 @@
       <div class="pure-u-1">
 	<div id="addrow">&#x2795;</div>
       </div>
+      <div class="pure-u-1-2">
+	<div class="tapme centerme">
+	  <label>Words remaining: <span id="wordsleft">???</span></label>
+	</div>
+      </div>
+      <div class="pure-u-1-2">
+	<div class="tapme centerme">
+	  <input type="checkbox" id="showwords">
+          <label>Show words</label>
+	</div>
+      </div>
       <div class="pure-u-1">
-	<div>
-	  Words left: <span id="wordsleft">???</span>
-	</div>
-	<div>
-	  <input type="checkbox" id="showwords"> Show words</input>
-	</div>
 	<div id="remainingwords" style="display: none;"></div>
       </div>
     </div>

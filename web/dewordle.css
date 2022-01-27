@@ -47,3 +47,19 @@ svg {
     text-align: center;
     font-size: 64pt;
 }
+
+.tapme {
+    margin: 5px;
+}
+
+.tapme input {
+    font-size: 40pt;
+}
+
+.tapme label {
+    font-size: 16pt;
+}
+
+.centerme {
+    text-align: center;
+}
