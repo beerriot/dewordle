@@ -76,3 +76,19 @@ var build = [];
 var remainingWords = dict.map[242].map(function(x) { return x; });
 var wordsLeft = document.getElementById("wordsleft");
 wordsLeft.innerText = ""+remainingWords.length;
+
+document.getElementById("darkmode").onchange = function() {
+    if (this.checked) {
+	document.body.classList.add("darkmode");
+    } else {
+	document.body.classList.remove("darkmode");
+    }
+}
+
+document.getElementById("colorblind").onchange = function() {
+    if (this.checked) {
+	document.body.classList.add("colorblind");
+    } else {
+	document.body.classList.remove("colorblind");
+    }
+}

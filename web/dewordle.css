@@ -1,11 +1,33 @@
+body {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+body.darkmode {
+    background-color: #000000;
+    color: #ffffff;
+}
+
 .incorrect {
     background-color: #cccccc;
+}
+
+.darkmode .incorrect {
+    background-color: #666666;
 }
 
 .almost {
     background-color: #ffff00;
 }
 
+.colorblind .almost {
+    background-color: #0000ff;
+}
+
 .correct {
     background-color: #00ff00;
+}
+
+.colorblind .correct {
+    background-color: #ff9900;
 }
