@@ -8,8 +8,13 @@ body.darkmode {
     color: #ffffff;
 }
 
+svg {
+    border: dotted 2px #999999;
+}
+
 .incorrect svg {
     background-color: #cccccc;
+    border: none;
 }
 
 .darkmode .incorrect svg {
@@ -18,6 +23,7 @@ body.darkmode {
 
 .almost svg {
     background-color: #ffff00;
+    border: none;
 }
 
 .colorblind .almost svg {
@@ -26,6 +32,7 @@ body.darkmode {
 
 .correct svg {
     background-color: #00ff00;
+    border: none;
 }
 
 .colorblind .correct svg {
@@ -34,4 +41,9 @@ body.darkmode {
 
 svg {
     margin: 3px;
+}
+
+#addrow {
+    text-align: center;
+    font-size: 64pt;
 }

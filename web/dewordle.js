@@ -2,39 +2,53 @@
 
 var square = document.getElementById("gamesquare");
 var board = square.parentElement;
+square.removeAttribute("id");
 square.remove();
 
-var incorrect = square.cloneNode(true);
-incorrect.classList.add("incorrect");
-
-var almost = square.cloneNode(true);
-almost.classList.add("almost");
-
-var correct = square.cloneNode(true);
-correct.classList.add("correct");
-
-// inputs
-var inputArea = document.getElementById("gameinput");
-
-var incorrectInput = incorrect.cloneNode(true);
-var almostInput = almost.cloneNode(true);
-var correctInput = correct.cloneNode(true);
-
-inputArea.append(incorrectInput);
-inputArea.append(almostInput);
-inputArea.append(correctInput);
+var build = [];
+for (var i = 0; i < 5; i++) {
+    build.push(square.cloneNode(true));
+    build[i].onpointerdown = inputDownHandler;
+    build[i].onpointerup = buildUp;
+    board.append(build[i]);
+}
 
 function inputDownHandler(ev) {
     this.setPointerCapture(ev.pointerId);
 }
 
-function inputUpHandler(ev) {
-    build.push(this.cloneNode(true));
-    board.append(build[build.length-1]);
+var addrow = document.getElementById("addrow");
+addrow.onpointerdown = inputDownHandler;
+addrow.onpointerup = addrowUp;
 
-    if (build.length == 5) {
-	addPattern(pattern(build));
-	build = [];
+function addrowUp(ev) {
+    addPattern(pattern(build));
+    
+    for (var i = 0; i < 5; i++) {
+	var clone = build[i].cloneNode(true);
+	if (!(clone.classList.contains("correct")
+	      || clone.classList.contains("almost"))) {
+	    clone.classList.add("incorrect");
+	}
+	
+	build[0].before(clone);
+	
+	build[i].classList.remove("correct");
+	build[i].classList.remove("almost");
+	build[i].classList.remove("incorrect");
+    }
+}
+
+function buildUp(ev) {
+    if (this.classList.contains("correct")) {
+	this.classList.remove("correct");
+	this.classList.add("almost");
+    } else if (this.classList.contains("almost")) {
+	this.classList.remove("almost");
+	this.classList.add("incorrect");
+    } else {
+	this.classList.remove("incorrect");
+	this.classList.add("correct");
     }
 }
 
@@ -63,15 +77,7 @@ function addPattern(pattern) {
     wordsLeft.innerText = ""+remainingWords.length;
 }
 
-incorrectInput.onpointerdown = inputDownHandler;
-incorrectInput.onpointerup = inputUpHandler;
-almostInput.onpointerdown = inputDownHandler;
-almostInput.onpointerup = inputUpHandler;
-correctInput.onpointerdown = inputDownHandler;
-correctInput.onpointerup = inputUpHandler;
-
 var patterns = [];
-var build = [];
 
 var remainingWords = dict.map[242].map(function(x) { return x; });
 var wordsLeft = document.getElementById("wordsleft");
