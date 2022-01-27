@@ -22,7 +22,7 @@ svg {
 }
 
 .almost svg {
-    background-color: #ffff00;
+    background-color: #ffdd00;
     border: none;
 }
 
@@ -31,7 +31,7 @@ svg {
 }
 
 .correct svg {
-    background-color: #00ff00;
+    background-color: #00cc00;
     border: none;
 }
 
