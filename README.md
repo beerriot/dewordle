@@ -1,54 +1,42 @@
 # De-Wordle
 
-Given one or more Wordle solution diagrams, with no letters, only
-colored boxes, can we deduce the answer word?
+Wordle can be solved using only the colored-square diagrams, without
+knowing any letters guessed. This app, "De-Wordle" (as in un-wordle,
+reverse-wordle) makes a game of it. You guess colored-square diagrams
+until it tells you you've narrowed down the possible answers to either
+1 word (you win!) or 0 words (you lose!).
 
-# Thoughts
+This is the `gh-pages` branch of this repository, which contains the
+files for the website (https://dewordle.beerriot.com/). On the `main`
+branch, you'll find the code that was used to build the file
+`map-tiny.js`.
 
-(Colors mentioned below are for the light-theme, non-color-blind
-diagram. Green = correct letter, correct place; Yellow = correct
-letter, incorrect place; White = incorrect letter.)
+The `map-tiny.js` file is a map from colored-square diagrams to the
+answer words that have guesses that can produce them. Its format:
 
-Does it make more sense to work forward or backward (From first guess
-toward solution, or from solution toward first guess?)
+```javascript
+var dict = { // a name that the game code can reference
+  "words": [ ... ], // the list of answer words
+  "map64": [ ... ], // 243 diagram-to-word mappings
+  };
+```
 
-Does it make more sense to work work depth-first (through-game) or
-breadth-first (across-games)?
+The diagram mappings are in order of the diagram's base-3
+representation, if "2" is substituted for correct-in-correct-place,
+"1" for correct-in-wrong-place, and "0" for incorrect. So, the first
+entry, at array position 0 is for diagram 00000, or "all
+incorrect". The second entry, at array position 1 is for diagram
+00001, or "all incorrect, except the right-most, which is correct but
+in the wrong place". The third entry, at array position 2 is for
+diagram 00002, or "all incorrect, except the right-most, which is
+correct and in the right place". And the final entry, at array
+position 242 is for diagram 22222, or "all correct".
 
-Maybe order of guesses doesn't matter, if you're not going to make
-assumptions about how a player plays.
-
-Thinking about in-order one-game analyisis: For hard-mode, yellows can
-be assumed used on any subsequent line when there are only greens and
-whites.
-
-Previous greens mostly mean nothing. Prevous guess means only that
-there is a word in Impossible that has a given comparison to the
-chosen word.
-
-I've been thinking letter-by-letter deduction, but maybe whole-word is
-better? Maybe only whole-word is possible?
-
-Five letters, each green or white = 2^5 = 32 possible guess
-diagrams. There are 26 word lists for any guess diagram with 1
-green. 26^2 word lists for any guess diagram with 2 greens. What does
-the pairwise overlap look like? That is, if we know Gwwww, and wGwww,
-how many of the 26^2 possible pairings have non-empty intersections?
-And how large are the intersections?
-
-Knowing Gwwww and wGwww is not the same as knowing GGwww. The
-interesting thing is whether there is a word in Possible or Impossible
-that fits GGwww.
-
-So basically, for each word in Possible, how many of the 2^5 guess
-diagrams are actually possible?
-
-Adding Yellow, we have 3^5=243 possible guess diagrams. How many of
-those apply to each Possible word? These include the 2^5 green-white
-only.
-
-2314 Possible words * 243 possible guess diagrams = 562302
-diagram-word pairings.
-
-We can probably ignore yellows until we want to try to produce
-solutions with fewer input diagrams?
+Each diagram mapping is a base64-encoded string. Decoding one of those
+strings produces a binary 290 bytes long. Each bit of that byte
+indicates whether the corresponding word in the `words` list has one
+or more guesses that generate this pattern (1 if it does, 0 if it does
+not). This binary is little-endian encoded, so the lowest bit of the
+first byte is for `words[0]`. The lowest bit of the second byte is for
+`words[8]`. The third-lowest bit of the final byte is for
+`words[2315]`, the end of the list.
