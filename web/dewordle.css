@@ -8,26 +8,30 @@ body.darkmode {
     color: #ffffff;
 }
 
-.incorrect {
+.incorrect svg {
     background-color: #cccccc;
 }
 
-.darkmode .incorrect {
+.darkmode .incorrect svg {
     background-color: #666666;
 }
 
-.almost {
+.almost svg {
     background-color: #ffff00;
 }
 
-.colorblind .almost {
+.colorblind .almost svg {
     background-color: #0000ff;
 }
 
-.correct {
+.correct svg {
     background-color: #00ff00;
 }
 
-.colorblind .correct {
+.colorblind .correct svg {
     background-color: #ff9900;
+}
+
+svg {
+    margin: 3px;
 }
