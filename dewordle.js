@@ -69,6 +69,11 @@ function addrowUp(ev) {
         }
     } else {
         for (var i = 0; i < 5; i++) {
+	    if (!(build[i].classList.contains("correct")
+	          || build[i].classList.contains("almost"))) {
+	        build[i].classList.add("incorrect");
+	    }
+
             build[i].onpointerdown = null;
             build[i].onpointerup = null;
         }
