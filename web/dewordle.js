@@ -4,25 +4,25 @@ var square = document.getElementById("gamesquare");
 var board = square.parentElement;
 square.remove();
 
-var white = square.cloneNode(true);
-white.classList.add("incorrect");
+var incorrect = square.cloneNode(true);
+incorrect.classList.add("incorrect");
 
-var yellow = square.cloneNode(true);
-yellow.classList.add("almost");
+var almost = square.cloneNode(true);
+almost.classList.add("almost");
 
-var green = square.cloneNode(true);
-green.classList.add("correct");
+var correct = square.cloneNode(true);
+correct.classList.add("correct");
 
 // inputs
 var inputArea = document.getElementById("gameinput");
 
-var whiteInput = white.cloneNode(true);
-var yellowInput = yellow.cloneNode(true);
-var greenInput = green.cloneNode(true);
+var incorrectInput = incorrect.cloneNode(true);
+var almostInput = almost.cloneNode(true);
+var correctInput = correct.cloneNode(true);
 
-inputArea.append(whiteInput);
-inputArea.append(yellowInput);
-inputArea.append(greenInput);
+inputArea.append(incorrectInput);
+inputArea.append(almostInput);
+inputArea.append(correctInput);
 
 function inputDownHandler(ev) {
     this.setPointerCapture(ev.pointerId);
@@ -63,12 +63,12 @@ function addPattern(pattern) {
     wordsLeft.innerText = ""+remainingWords.length;
 }
 
-whiteInput.onpointerdown = inputDownHandler;
-whiteInput.onpointerup = inputUpHandler;
-yellowInput.onpointerdown = inputDownHandler;
-yellowInput.onpointerup = inputUpHandler;
-greenInput.onpointerdown = inputDownHandler;
-greenInput.onpointerup = inputUpHandler;
+incorrectInput.onpointerdown = inputDownHandler;
+incorrectInput.onpointerup = inputUpHandler;
+almostInput.onpointerdown = inputDownHandler;
+almostInput.onpointerup = inputUpHandler;
+correctInput.onpointerdown = inputDownHandler;
+correctInput.onpointerup = inputUpHandler;
 
 var patterns = [];
 var build = [];
