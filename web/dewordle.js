@@ -5,13 +5,17 @@ var board = square.parentElement;
 square.removeAttribute("id");
 square.remove();
 
-var build = [];
-for (var i = 0; i < 5; i++) {
-    build.push(square.cloneNode(true));
-    build[i].onpointerdown = inputDownHandler;
-    build[i].onpointerup = buildUp;
-    board.append(build[i]);
+var build;
+function createBuildRow() {
+    build = [];
+    for (var i = 0; i < 5; i++) {
+        build.push(square.cloneNode(true));
+        build[i].onpointerdown = inputDownHandler;
+        build[i].onpointerup = buildUp;
+        board.append(build[i]);
+    }
 }
+createBuildRow();
 
 function inputDownHandler(ev) {
     this.setPointerCapture(ev.pointerId);
@@ -24,6 +28,14 @@ addrow.onpointerup = addrowUp;
 var share = document.getElementById("share");
 share.onpointerdown = inputDownHandler;
 share.onpointerup = shareUp;
+
+var reset = document.getElementById("reset");
+reset.onpointerdown = inputDownHandler;
+reset.onpointerup = resetUp;
+
+var play = document.getElementById("play");
+var win = document.getElementById("win");
+var done = document.getElementById("done");
 
 function addrowUp(ev) {
     if (addPattern(pattern(build))) {
@@ -45,7 +57,6 @@ function addrowUp(ev) {
             build[i].onpointerdown = null;
             build[i].onpointerup = null;
         }
-        build = [];
     }
 }
 
@@ -97,9 +108,9 @@ function addPattern(pattern) {
 function endGame() {
     if (remainingWords.length == 1) {
         // win
-        document.getElementById("status").setAttribute("style", "display: none;");
+        play.setAttribute("style", "display: none;");
         document.getElementById("winword").innerText = dict.words[remainingWords[0]];
-        document.getElementById("win").removeAttribute("style");
+        win.removeAttribute("style");
 
         addrow.setAttribute("style", "display: none;");
         share.removeAttribute("style");
@@ -107,7 +118,7 @@ function endGame() {
         // lose
         wordsLeft.innerText = "no";
         addrow.setAttribute("style", "display: none;");
-        document.getElementById("done").removeAttribute("style");
+        done.removeAttribute("style");
     }
 }
 
@@ -150,9 +161,28 @@ function gameDiagram() {
     return diagram;
 }
 
-var patterns = [];
+function resetUp() {
+    share.setAttribute("style", "display: none;");
+    done.setAttribute("style", "display: none;");
+    addrow.removeAttribute("style");
 
-var remainingWords = dict.map[242].map(function(x) { return x; });
+    win.setAttribute("style", "display:none;");
+    play.removeAttribute("style");
+
+    board.innerHTML = "";
+    createBuildRow();
+    initPatterns();
+    displayRemaining();
+}
+
+var patterns;
+var remainingWords;
+function initPatterns() {
+    patterns = [];
+    remainingWords = dict.map[242].map(function(x) { return x; });
+}
+initPatterns();
+
 var wordsLeft = document.getElementById("wordsleft");
 displayRemaining();
 
