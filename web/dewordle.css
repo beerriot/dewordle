@@ -43,6 +43,26 @@ svg {
     margin: 3px;
 }
 
+span.colorblindtheme {
+    display: none;
+}
+.colorblind span.colorblindtheme {
+    display: inline;
+}
+.colorblind span.regulartheme {
+    display: none;
+}
+
+span.darktheme {
+    display: none;
+}
+.darkmode span.darktheme {
+    display: inline;
+}
+.darkmode span.lighttheme {
+    display: none;
+}
+
 #addrow, #reset, #share, #done {
     text-align: center;
     font-size: 64pt;
