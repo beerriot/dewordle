@@ -23,16 +23,16 @@ addrow.onpointerup = addrowUp;
 
 function addrowUp(ev) {
     addPattern(pattern(build));
-    
+
     for (var i = 0; i < 5; i++) {
 	var clone = build[i].cloneNode(true);
 	if (!(clone.classList.contains("correct")
 	      || clone.classList.contains("almost"))) {
 	    clone.classList.add("incorrect");
 	}
-	
+
 	build[0].before(clone);
-	
+
 	build[i].classList.remove("correct");
 	build[i].classList.remove("almost");
 	build[i].classList.remove("incorrect");
@@ -74,17 +74,21 @@ function addPattern(pattern) {
 
     remainingWords = remainingWords.filter(
 	function (w) { return words.includes(w); });
-    wordsLeft.innerText = ""+remainingWords.length;
-
-    document.getElementById("remainingwords").innerText = remainingWords.map(
-	function(w) { return dict.words[w]; }).join(", ");
+    displayRemaining();
 }
 
 var patterns = [];
 
 var remainingWords = dict.map[242].map(function(x) { return x; });
 var wordsLeft = document.getElementById("wordsleft");
-wordsLeft.innerText = ""+remainingWords.length;
+displayRemaining();
+
+function displayRemaining() {
+    wordsLeft.innerText = ""+remainingWords.length;
+
+    document.getElementById("remainingwords").innerText = remainingWords.map(
+	function(w) { return dict.words[w]; }).join(", ");
+}
 
 document.getElementById("darkmode").onchange = function() {
     if (this.checked) {
