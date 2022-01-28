@@ -27,13 +27,18 @@ function createBuildRow() {
         build.push(square.cloneNode(true));
         build[i].onpointerdown = inputDownHandler;
         build[i].onpointerup = buildUp;
+        build[i].ontouchend = noZoom;
         board.append(build[i]);
     }
 }
 createBuildRow();
 
 function inputDownHandler(ev) {
+    ev.preventDefault();
     this.setPointerCapture(ev.pointerId);
+}
+function noZoom(ev) {
+    ev.preventDefault();
 }
 
 var addrow = document.getElementById("addrow");
