@@ -1,4 +1,5 @@
 // 'var dict' comes from map.js
+dict.words = dict.possible.match(/[A-Z]{5}/g);
 dict.map = dict.map64.map(unpackBase64);
 
 function unpackBase64(str) {
@@ -114,12 +115,29 @@ function pattern(elements) {
 }
 
 function addPattern(pattern) {
-    patterns.push(pattern);
-
     var words = dict.map[pattern];
-
     remainingWords = remainingWords.filter(
         function (w) { return words.includes(w); });
+
+    var record = {
+        "pattern": pattern,
+        "guesses": guessesForPattern(pattern, remainingWords)
+    };
+    patterns.push(record);
+
+    for (var i = 0; i < patterns.length; i++) {
+        patterns[i].guesses = patterns[i].guesses.filter(
+            function(guess) {
+                for (var j = 0; j < remainingWords.length; j++) {
+                    if (patterns[i].pattern ==
+                        score(guess, remainingWords[j])) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+    }
+
     displayRemaining();
 
     if (remainingWords.length <= 1) {
@@ -128,6 +146,63 @@ function addPattern(pattern) {
     } else {
         return true;
     }
+}
+
+function guessesForPattern(pattern, remainingWords) {
+    var rexps = [];
+    for (var i = 0; i < remainingWords.length; i++) {
+        rexps.push(regexForPatternInWord(pattern, remainingWords[i]));
+    }
+
+    var rexp = new RegExp("("+rexps.join(")|(")+")", "g");
+    var match_possible = dict.possible.match(rexp) || [];
+    var match_impossible = dict.impossible.match(rexp) || [];
+    return match_possible.concat(match_impossible);
+}
+
+function regexForPatternInWord(pattern, wordi) {
+    var patternstr = pattern.toString(3);
+    if (patternstr.length < 5) {
+        patternstr = "0".repeat(5 - patternstr.length) + patternstr;
+    }
+
+    var word = dict.words[wordi];
+    var rexp = "";
+    for (var i = 0; i < patternstr.length; i++) {
+        if (patternstr[i] == "2") {
+            rexp += word[i];
+        } else if (patternstr[i] == "1") {
+            // this picks up more words than it should, because of
+            // double-letter cases, but filterGuesses will clean them
+            // up later
+            rexp += "["+word.replaceAll(word[i], '')+"]";
+        } else {
+            rexp += "[^"+word+",]";
+        }
+    }
+    return rexp;
+}
+
+function score(guess, wordi) {
+    var score = ["0","0","0","0","0"];
+    var word = dict.words[wordi].split('');
+
+    for (var i = 0; i < guess.length; i++) {
+        if (guess[i] == word[i]) {
+            score[i] = "2";
+            word[i] = ".";
+        }
+    }
+
+    for (var i = 0; i < guess.length; i++) {
+        var j = word.indexOf(guess[i]);
+        if (j > 0) {
+            score[i] = "1";
+            word[j] = ".";
+        }
+    }
+
+    return parseInt(score.join(''), 3);
 }
 
 function endGame() {
