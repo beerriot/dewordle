@@ -60,24 +60,24 @@ var done = document.getElementById("done");
 function addrowUp(ev) {
     if (addPattern(pattern(build))) {
         for (var i = 0; i < 5; i++) {
-	    var clone = build[i].cloneNode(true);
-	    if (!(clone.classList.contains("correct")
-	          || clone.classList.contains("almost"))) {
-	        clone.classList.add("incorrect");
-	    }
+            var clone = build[i].cloneNode(true);
+            if (!(clone.classList.contains("correct")
+                  || clone.classList.contains("almost"))) {
+                clone.classList.add("incorrect");
+            }
 
-	    build[0].before(clone);
+            build[0].before(clone);
 
-	    build[i].classList.remove("correct");
-	    build[i].classList.remove("almost");
-	    build[i].classList.remove("incorrect");
+            build[i].classList.remove("correct");
+            build[i].classList.remove("almost");
+            build[i].classList.remove("incorrect");
         }
     } else {
         for (var i = 0; i < 5; i++) {
-	    if (!(build[i].classList.contains("correct")
-	          || build[i].classList.contains("almost"))) {
-	        build[i].classList.add("incorrect");
-	    }
+            if (!(build[i].classList.contains("correct")
+                  || build[i].classList.contains("almost"))) {
+                build[i].classList.add("incorrect");
+            }
 
             build[i].onpointerdown = null;
             build[i].onpointerup = null;
@@ -87,27 +87,27 @@ function addrowUp(ev) {
 
 function buildUp(ev) {
     if (this.classList.contains("correct")) {
-	this.classList.remove("correct");
-	this.classList.add("almost");
+        this.classList.remove("correct");
+        this.classList.add("almost");
     } else if (this.classList.contains("almost")) {
-	this.classList.remove("almost");
-	this.classList.add("incorrect");
+        this.classList.remove("almost");
+        this.classList.add("incorrect");
     } else {
-	this.classList.remove("incorrect");
-	this.classList.add("correct");
+        this.classList.remove("incorrect");
+        this.classList.add("correct");
     }
 }
 
 function pattern(elements) {
     var patternString = "";
     for (i = 0; i < elements.length; i++) {
-	if (elements[i].classList.contains("correct")) {
-	    patternString += "2";
-	} else if (elements[i].classList.contains("almost")) {
-	    patternString += "1";
-	} else {
-	    patternString += "0";
-	}
+        if (elements[i].classList.contains("correct")) {
+            patternString += "2";
+        } else if (elements[i].classList.contains("almost")) {
+            patternString += "1";
+        } else {
+            patternString += "0";
+        }
     }
 
     return parseInt(patternString, 3);
@@ -119,7 +119,7 @@ function addPattern(pattern) {
     var words = dict.map[pattern];
 
     remainingWords = remainingWords.filter(
-	function (w) { return words.includes(w); });
+        function (w) { return words.includes(w); });
     displayRemaining();
 
     if (remainingWords.length <= 1) {
@@ -215,29 +215,29 @@ function displayRemaining() {
     wordsLeft.innerText = ""+remainingWords.length;
 
     document.getElementById("remainingwords").innerText = remainingWords.map(
-	function(w) { return dict.words[w]; }).join(", ");
+        function(w) { return dict.words[w]; }).join(", ");
 }
 
 document.getElementById("darkmode").onchange = function() {
     if (this.checked) {
-	document.body.classList.add("darkmode");
+        document.body.classList.add("darkmode");
     } else {
-	document.body.classList.remove("darkmode");
+        document.body.classList.remove("darkmode");
     }
 }
 
 document.getElementById("colorblind").onchange = function() {
     if (this.checked) {
-	document.body.classList.add("colorblind");
+        document.body.classList.add("colorblind");
     } else {
-	document.body.classList.remove("colorblind");
+        document.body.classList.remove("colorblind");
     }
 }
 
 document.getElementById("showwords").onchange = function() {
     if (this.checked) {
-	document.getElementById("remainingwords").removeAttribute("style");
+        document.getElementById("remainingwords").removeAttribute("style");
     } else {
-	document.getElementById("remainingwords").setAttribute("style", "display: none;");
+        document.getElementById("remainingwords").setAttribute("style", "display: none;");
     }
 }
