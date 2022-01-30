@@ -1,5 +1,5 @@
 // 'var dict' comes from map.js
-dict.words = dict.possible.match(/[A-Z]{5}/g);
+dict.words = dict.possible.split(",");
 dict.map = dict.map64.map(unpackBase64);
 
 function unpackBase64(str) {
