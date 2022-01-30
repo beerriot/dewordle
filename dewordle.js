@@ -180,12 +180,18 @@ function regexForPatternInWord(pattern, wordi) {
         if (patternstr[i] == "2") {
             rexp += word[i];
         } else if (patternstr[i] == "1") {
-            // this picks up more words than it should, because of
-            // double-letter cases, but filterGuesses will clean them
-            // up later
+            // This picks up more words than it should because of
+            // double-letter oddities.
             rexp += "["+word.replaceAll(word[i], '')+"]";
         } else {
-            rexp += "[^"+word+",]";
+            // This also picks up more words than it should. It would
+            // be great to write "[^WORD]" here, but it actually
+            // misses valid words if you do that. For example, if the
+            // word is CABAL, and the pattern is 11110, using [^CABAL]
+            // for the last letter will miss ABACA. The final A in
+            // ABACA will be scored 0, because the first two A's
+            // claimed the 1's.
+            rexp += "[A-Z]";
         }
     }
     return rexp;
@@ -203,10 +209,12 @@ function score(guess, wordi) {
     }
 
     for (var i = 0; i < guess.length; i++) {
-        var j = word.indexOf(guess[i]);
-        if (j >= 0) {
-            score[i] = "1";
-            word[j] = ".";
+        if (score[i] == "0") {
+            var j = word.indexOf(guess[i]);
+            if (j >= 0) {
+                score[i] = "1";
+                word[j] = ".";
+            }
         }
     }
 
