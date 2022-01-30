@@ -21,6 +21,10 @@ var board = square.parentElement;
 square.removeAttribute("id");
 square.remove();
 
+var guesscount = document.getElementById("guesscount");
+guesscount.removeAttribute("id");
+guesscount.remove();
+
 var build;
 function createBuildRow() {
     build = [];
@@ -73,6 +77,8 @@ function addrowUp(ev) {
             build[i].classList.remove("almost");
             build[i].classList.remove("incorrect");
         }
+
+        build[0].before(patterns[patterns.length-1].display);
     } else {
         for (var i = 0; i < 5; i++) {
             if (!(build[i].classList.contains("correct")
@@ -83,6 +89,7 @@ function addrowUp(ev) {
             build[i].onpointerdown = null;
             build[i].onpointerup = null;
         }
+        build[build.length-1].after(patterns[patterns.length-1].display);
     }
 }
 
@@ -121,7 +128,8 @@ function addPattern(pattern) {
 
     var record = {
         "pattern": pattern,
-        "guesses": guessesForPattern(pattern, remainingWords)
+        "guesses": guessesForPattern(pattern, remainingWords),
+        "display": guesscount.cloneNode(true)
     };
     patterns.push(record);
 
@@ -196,7 +204,7 @@ function score(guess, wordi) {
 
     for (var i = 0; i < guess.length; i++) {
         var j = word.indexOf(guess[i]);
-        if (j > 0) {
+        if (j >= 0) {
             score[i] = "1";
             word[j] = ".";
         }
@@ -291,6 +299,11 @@ function displayRemaining() {
 
     document.getElementById("remainingwords").innerText = remainingWords.map(
         function(w) { return dict.words[w]; }).join(", ");
+
+    for (var i = 0; i < patterns.length; i++) {
+        patterns[i].display.getElementsByClassName("matchcount")[0].innerText =
+            ""+patterns[i].guesses.length;
+    }
 }
 
 document.getElementById("darkmode").onchange = function() {

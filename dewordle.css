@@ -94,3 +94,7 @@ span.darktheme {
     margin: 0 auto;
     max-width: 400px;
 }
+
+.guesscount {
+    font-size: smaller;
+}
