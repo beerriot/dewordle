@@ -122,12 +122,13 @@ classify_words(Map) ->
 		{[], []},
 		AllWords).
 
-write_json_map(Filename, Map) ->
+write_json_map(Filename, Map, Impossible) ->
     #{242 := Words} = Map,
     WordIndex = maps:from_list(
 		  lists:zip(Words, lists:seq(0, length(Words)-1))),
     Json = [${,
-	    "\"words\":", json_word_list(Words), $,,
+	    "\"possible\":", json_word_list(Words), $,,
+            "\"impossible\":", json_word_list(Impossible), $,,
 	    "\"map64\":",
 	    $[,
 	    lists:join($,, [json_word_map(maps:get(N, Map), WordIndex)
@@ -137,7 +138,7 @@ write_json_map(Filename, Map) ->
     file:write_file(Filename, Json).
 
 json_word_list(Words) ->
-    [$[, lists:join($,, [ [$", Word, $"] || Word <- Words]), $]].
+    [$", lists:join($,, Words), $"].
 
 json_word_map(Words, Index) ->
     json_word_map(Words, Index, 0, 0, []).
