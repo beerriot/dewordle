@@ -14,7 +14,7 @@ open_word_list(Filename) ->
 generate_map(Possible, Impossible) ->
     All = Possible ++ Impossible,
     Map = maps:from_list(lists:zip(lists:seq(0,242),
-                         lists:duplicate(243, []))),
+                                   lists:duplicate(243, []))),
     WordMap = lists:foldl(fun(Word, Acc) ->  map_word(All, Word, Acc) end,
                           Map,
                           Possible),
@@ -87,54 +87,54 @@ words_for_scores(Scores, Map) ->
 
 scores_containing_word(Word, Map) ->
     maps:fold(fun(K, V, Acc) ->
-		      case lists:member(Word, V) of
-			  true ->
-			      [K|Acc];
-			  false ->
-			      Acc
-		      end
-	      end,
-	      [],
-	      Map).
+                      case lists:member(Word, V) of
+                          true ->
+                              [K|Acc];
+                          false ->
+                              Acc
+                      end
+              end,
+              [],
+              Map).
 
 words_with_same_score_as(Word, Map) ->
     #{242 := AllWords} = Map,
     maps:fold(fun(_, V, Acc) ->
-		      case lists:member(Word, V) of
-			  true ->
-			      ordsets:intersection(V, Acc);
-			  false -> Acc
-		      end
-	      end,
-	      AllWords,
-	      Map).
+                      case lists:member(Word, V) of
+                          true ->
+                              ordsets:intersection(V, Acc);
+                          false -> Acc
+                      end
+              end,
+              AllWords,
+              Map).
 
 classify_words(Map) ->
     #{242 := AllWords} = Map,
     lists:foldl(fun(Word, {Single, Multiple}) ->
-			case words_with_same_score_as(Word, Map) of
-			    [Word] ->
-				{[Word|Single], Multiple};
-			    Many ->
-				{Single, [{Word,Many}|Multiple]}
-			end
-		end,
-		{[], []},
-		AllWords).
+                        case words_with_same_score_as(Word, Map) of
+                            [Word] ->
+                                {[Word|Single], Multiple};
+                            Many ->
+                                {Single, [{Word,Many}|Multiple]}
+                        end
+                end,
+                {[], []},
+                AllWords).
 
 write_json_map(Filename, Map, Impossible) ->
     #{242 := Words} = Map,
     WordIndex = maps:from_list(
-		  lists:zip(Words, lists:seq(0, length(Words)-1))),
+                  lists:zip(Words, lists:seq(0, length(Words)-1))),
     Json = [${,
-	    "\"possible\":", json_word_list(Words), $,,
+            "\"possible\":", json_word_list(Words), $,,
             "\"impossible\":", json_word_list(Impossible), $,,
-	    "\"map64\":",
-	    $[,
-	    lists:join($,, [json_word_map(maps:get(N, Map), WordIndex)
-			    || N <- lists:seq(0, 242)]),
-	    $],
-	    $}],
+            "\"map64\":",
+            $[,
+            lists:join($,, [json_word_map(maps:get(N, Map), WordIndex)
+                            || N <- lists:seq(0, 242)]),
+            $],
+            $}],
     file:write_file(Filename, Json).
 
 json_word_list(Words) ->
