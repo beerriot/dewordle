@@ -133,17 +133,17 @@ function addPattern(pattern) {
     };
     patterns.push(record);
 
-    for (var i = 0; i < patterns.length; i++) {
-        patterns[i].guesses = patterns[i].guesses.filter(
-            function(guess) {
-                for (var j = 0; j < remainingWords.length; j++) {
-                    if (patterns[i].pattern ==
-                        score(guess, remainingWords[j])) {
-                        return true;
-                    }
-                }
-                return false;
-            });
+    // -1 here because the newest pattern has been pre-filtered
+    for (var i = 0; i < patterns.length-1; i++) {
+        var newGuesses = {};
+        for (var j in patterns[i].guesses) {
+            var newMatches = patterns[i].guesses[j].filter(
+                function(m) { return remainingWords.includes(m); });
+            if (newMatches.length > 0) {
+                newGuesses[j] = newMatches;
+            }
+        }
+        patterns[i].guesses = newGuesses;
     }
 
     displayRemaining();
@@ -157,15 +157,24 @@ function addPattern(pattern) {
 }
 
 function guessesForPattern(pattern, remainingWords) {
-    var rexps = [];
-    for (var i = 0; i < remainingWords.length; i++) {
-        rexps.push(regexForPatternInWord(pattern, remainingWords[i]));
-    }
+    var guesses = {};
 
-    var rexp = new RegExp("("+rexps.join(")|(")+")", "g");
-    var match_possible = dict.possible.match(rexp) || [];
-    var match_impossible = dict.impossible.match(rexp) || [];
-    return match_possible.concat(match_impossible);
+    for (var i = 0; i < remainingWords.length; i++) {
+        var rexp = new RegExp(
+            regexForPatternInWord(pattern, remainingWords[i]), "g");
+        var matches = (dict.possible.match(rexp) || []).concat(
+            dict.impossible.match(rexp) || []);
+        for (var j = 0; j < matches.length; j++) {
+            if (score(matches[j], remainingWords[i]) == pattern) {
+                if (matches[j] in guesses) {
+                    guesses[matches[j]].push(remainingWords[i]);
+                } else {
+                    guesses[matches[j]] = [remainingWords[i]];
+                }
+            }
+        }
+    }
+    return guesses;
 }
 
 function regexForPatternInWord(pattern, wordi) {
@@ -309,8 +318,10 @@ function displayRemaining() {
         function(w) { return dict.words[w]; }).join(", ");
 
     for (var i = 0; i < patterns.length; i++) {
+        var count = 0;
+        for (x in patterns[i].guesses) { count++; }
         patterns[i].display.getElementsByClassName("matchcount")[0].innerText =
-            ""+patterns[i].guesses.length;
+            ""+count;
     }
 }
 
