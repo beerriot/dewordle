@@ -39,6 +39,10 @@ svg {
     background-color: #ff9900;
 }
 
+.colorblind svg text {
+    fill: #ffffff
+}
+
 svg {
     margin: 3px;
 }

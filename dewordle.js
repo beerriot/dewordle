@@ -71,6 +71,7 @@ function addrowUp(ev) {
                 clone.classList.add("incorrect");
             }
 
+            patterns[patterns.length-1].tiles.push(clone);
             build[0].before(clone);
 
             build[i].classList.remove("correct");
@@ -129,7 +130,8 @@ function addPattern(pattern) {
     var record = {
         "pattern": pattern,
         "guesses": guessesForPattern(pattern, remainingWords),
-        "display": guesscount.cloneNode(true)
+        "display": guesscount.cloneNode(true),
+        "tiles": []
     };
     patterns.push(record);
 
@@ -243,7 +245,19 @@ function endGame() {
         for (var i in patterns) {
             var words = [];
             for (var j in patterns[i].guesses) { words.push(j); }
-            patterns[i].display.children[0].innerText = words.join(", ");
+            var first = words.shift();
+            for (var j in first) {
+                var tiles = patterns[i].tiles;
+                if (i == patterns.length-1) {
+                    tiles = build;
+                }
+                tiles[j].getElementsByTagName("text")[0].innerHTML = first[j];
+            }
+            if (words.length > 0) {
+                patterns[i].display.children[0].innerHTML = "<i>or</i> "+words.join(", ");
+            } else {
+                patterns[i].display.children[0].innerText = "";
+            }
         }
     } else {
         // lose
