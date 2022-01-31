@@ -239,6 +239,12 @@ function endGame() {
 
         addrow.setAttribute("style", "display: none;");
         share.removeAttribute("style");
+
+        for (var i in patterns) {
+            var words = [];
+            for (var j in patterns[i].guesses) { words.push(j); }
+            patterns[i].display.children[0].innerText = words.join(", ");
+        }
     } else {
         // lose
         wordsLeft.innerText = "no";
