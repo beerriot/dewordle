@@ -232,7 +232,6 @@ function endGame() {
     if (remainingWords.length == 1) {
         // win
         play.setAttribute("style", "display: none;");
-        document.getElementById("winword").innerText = dict.words[remainingWords[0]];
         win.removeAttribute("style");
 
         addrow.setAttribute("style", "display: none;");
@@ -250,6 +249,14 @@ function endGame() {
             } else {
                 patterns[i].display.children[0].innerText = "";
             }
+        }
+
+        var word = dict.words[remainingWords[0]];
+        for (i in word) {
+            var tile = build[0].cloneNode(true);
+            tile.classList.add("correct");
+            tile.getElementsByTagName("text")[0].innerHTML = word[i];
+            build[0].before(tile);
         }
     } else {
         // lose
