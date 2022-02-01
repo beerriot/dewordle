@@ -319,15 +319,9 @@ function resetUp() {
 }
 
 const tileNames = {
-    "correct": ["2", "G", "O",
-                emoji["correct-regular"],
-                emoji["correct-color-blind"]],
-    "almost": ["1", "Y", "B",
-               emoji["almost-regular"],
-               emoji["almost-color-blind"]],
-    "incorrect": ["0", "W", "K",
-                  emoji["incorrect-light"],
-                  emoji["incorrect-dark"]]
+    "correct": ["2", "G", "O"],
+    "almost": ["1", "Y", "B"],
+    "incorrect": ["0", "W", "K"]
 };
 
 var wordsLeft = document.getElementById("wordsleft");
