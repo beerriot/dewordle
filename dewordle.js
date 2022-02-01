@@ -319,16 +319,53 @@ function resetUp() {
     displayRemaining();
 }
 
-var patterns;
-var remainingWords;
-function initPatterns() {
-    patterns = [];
-    remainingWords = dict.map[242].map(function(x) { return x; });
-}
-initPatterns();
+const tileNames = {
+    "correct": ["2", "G", "O",
+                emoji["correct-regular"],
+                emoji["correct-color-blind"]],
+    "almost": ["1", "Y", "B",
+               emoji["almost-regular"],
+               emoji["almost-color-blind"]],
+    "incorrect": ["0", "W", "K",
+                  emoji["incorrect-light"],
+                  emoji["incorrect-dark"]]
+};
 
 var wordsLeft = document.getElementById("wordsleft");
-displayRemaining();
+
+var patterns;
+var remainingWords;
+function initPatterns(start) {
+    remainingWords = dict.map[242].map(function(x) { return x; });
+    patterns = [];
+
+    if (start && (start.length % 5) == 1) {
+        var play = true;
+        for (var i = 1; i < start.length; i += 5) {
+            for (var j = 0; j < 5 && i+j < start.length; j++) {
+                if (tileNames.correct.includes(start[i+j])) {
+                    build[j].classList.add("correct");
+                } else if (tileNames.almost.includes(start[i+j])) {
+                    build[j].classList.add("almost");
+                } else {
+                    build[j].classList.add("incorrect");
+                }
+            }
+            play &= addPattern();
+        }
+
+        if (!play) {
+            for (var i in build) { build[i].remove(); }
+        }
+    }
+
+    if (patterns.length == 0) {
+        // this will have been called at least once if patterns were
+        // read above
+        displayRemaining();
+    }
+}
+initPatterns(window.location.hash);
 
 function displayRemaining() {
     wordsLeft.innerText = ""+remainingWords.length;
