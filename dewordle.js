@@ -338,10 +338,10 @@ function initPatterns(start) {
     remainingWords = dict.map[242].map(function(x) { return x; });
     patterns = [];
 
-    if (start && (start.length % 5) == 1) {
+    if (start) {
         var play = true;
-        for (var i = 1; i < start.length; i += 5) {
-            for (var j = 0; j < 5 && i+j < start.length; j++) {
+        for (var i = 0; i < start.length; i += 5) {
+            for (var j = 0; j < 5; j++) {
                 if (tileNames.correct.includes(start[i+j])) {
                     build[j].classList.add("correct");
                 } else if (tileNames.almost.includes(start[i+j])) {
@@ -364,7 +364,19 @@ function initPatterns(start) {
         displayRemaining();
     }
 }
-initPatterns(window.location.hash);
+
+var startPatterns = null;
+if (window.location.hash && window.location.hash.length > 1) {
+    var count = Math.trunc((window.location.hash.length - 1) / 5);
+    startPatterns = window.location.hash.slice(1, 1 + count * 5);
+    if (startPatterns.length != window.location.hash.length - 1) {
+        // in case someone missed a character during copy & paste,
+        // chop off the partial pattern at the end, so that appending
+        // the next-guessed pattern will work correctly
+        window.location.hash = startPatterns;
+    }
+}
+initPatterns(startPatterns);
 
 function displayRemaining() {
     wordsLeft.innerText = ""+remainingWords.length;
