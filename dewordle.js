@@ -115,8 +115,12 @@ function patternFrom(elements) {
     return parseInt(patternString, 3);
 }
 
-function addPattern() {
+function addPattern(updateHash=true) {
     var pattern = patternFrom(build);
+
+    if (updateHash) {
+        window.location.hash += pattern.toString(3).padStart(5, "0");
+    }
 
     var words = dict.map[pattern];
     remainingWords = remainingWords.filter(
@@ -176,11 +180,7 @@ function guessesForPattern(pattern, remainingWords) {
 }
 
 function regexForPatternInWord(pattern, wordi) {
-    var patternstr = pattern.toString(3);
-    if (patternstr.length < 5) {
-        patternstr = "0".repeat(5 - patternstr.length) + patternstr;
-    }
-
+    var patternstr = pattern.toString(3).padStart(5, "0");
     var word = dict.words[wordi];
     var rexp = "";
     for (var i = 0; i < patternstr.length; i++) {
@@ -314,6 +314,7 @@ function resetUp() {
     board.innerHTML = "";
     createBuildRow();
     initPatterns();
+    window.location.hash = "";
     displayRemaining();
 }
 
@@ -349,7 +350,7 @@ function initPatterns(start) {
                     build[j].classList.add("incorrect");
                 }
             }
-            play &= addPattern();
+            play &= addPattern(false);
         }
 
         if (!play) {
