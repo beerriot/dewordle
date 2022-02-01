@@ -63,35 +63,28 @@ var win = document.getElementById("win");
 var done = document.getElementById("done");
 
 function addrowUp(ev) {
-    if (addPattern(pattern(build))) {
-        for (var i = 0; i < 5; i++) {
-            var clone = build[i].cloneNode(true);
-            if (!(clone.classList.contains("correct")
-                  || clone.classList.contains("almost"))) {
-                clone.classList.add("incorrect");
-            }
-
-            patterns[patterns.length-1].tiles.push(clone);
-            build[0].before(clone);
-
-            build[i].classList.remove("correct");
-            build[i].classList.remove("almost");
-            build[i].classList.remove("incorrect");
-        }
-
-        build[0].before(patterns[patterns.length-1].display);
-    } else {
-        for (var i = 0; i < 5; i++) {
-            if (!(build[i].classList.contains("correct")
-                  || build[i].classList.contains("almost"))) {
-                build[i].classList.add("incorrect");
-            }
-
-            build[i].onpointerdown = null;
-            build[i].onpointerup = null;
-        }
-        build[build.length-1].after(patterns[patterns.length-1].display);
+    if (!addPattern()) {
+        for (i in build) { build[i].remove(); }
     }
+}
+
+function dupeAndResetBuild() {
+    for (var i = 0; i < 5; i++) {
+        var clone = build[i].cloneNode(true);
+        if (!(clone.classList.contains("correct")
+              || clone.classList.contains("almost"))) {
+            clone.classList.add("incorrect");
+        }
+
+        patterns[patterns.length-1].tiles.push(clone);
+        build[0].before(clone);
+
+        build[i].classList.remove("correct");
+        build[i].classList.remove("almost");
+        build[i].classList.remove("incorrect");
+    }
+
+    build[0].before(patterns[patterns.length-1].display);
 }
 
 function buildUp(ev) {
@@ -107,7 +100,7 @@ function buildUp(ev) {
     }
 }
 
-function pattern(elements) {
+function patternFrom(elements) {
     var patternString = "";
     for (i = 0; i < elements.length; i++) {
         if (elements[i].classList.contains("correct")) {
@@ -122,7 +115,9 @@ function pattern(elements) {
     return parseInt(patternString, 3);
 }
 
-function addPattern(pattern) {
+function addPattern() {
+    var pattern = patternFrom(build);
+
     var words = dict.map[pattern];
     remainingWords = remainingWords.filter(
         function (w) { return words.includes(w); });
@@ -134,6 +129,7 @@ function addPattern(pattern) {
         "tiles": []
     };
     patterns.push(record);
+    dupeAndResetBuild();
 
     // -1 here because the newest pattern has been pre-filtered
     for (var i = 0; i < patterns.length-1; i++) {
@@ -247,11 +243,7 @@ function endGame() {
             for (var j in patterns[i].guesses) { words.push(j); }
             var first = words.shift();
             for (var j in first) {
-                var tiles = patterns[i].tiles;
-                if (i == patterns.length-1) {
-                    tiles = build;
-                }
-                tiles[j].getElementsByTagName("text")[0].innerHTML = first[j];
+                patterns[i].tiles[j].getElementsByTagName("text")[0].innerHTML = first[j];
             }
             if (words.length > 0) {
                 patterns[i].display.children[0].innerHTML = "<i>or</i> "+words.join(", ");
