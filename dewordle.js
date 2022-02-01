@@ -286,19 +286,17 @@ function gameDiagram() {
         "-color-blind" : "-regular";
 
     var diagram = "";
-    var squares = board.children;
-    for (var i = 0; i < squares.length; i++) {
-        if (i % 5 == 0) {
-            diagram += "\n";
-        }
+    for (var i in patterns) {
+        diagram += "\n";
 
-        var square = squares[i];
-        if (square.classList.contains("correct")) {
-            diagram += emoji["correct"+palette];
-        } else if (square.classList.contains("almost")) {
-            diagram += emoji["almost"+palette];
-        } else {
-            diagram += emoji["incorrect"+theme];
+        for (j in patterns[i].tiles) {
+            if (patterns[i].tiles[j].classList.contains("correct")) {
+                diagram += emoji["correct"+palette];
+            } else if (patterns[i].tiles[j].classList.contains("almost")) {
+                diagram += emoji["almost"+palette];
+            } else {
+                diagram += emoji["incorrect"+theme];
+            }
         }
     }
 
