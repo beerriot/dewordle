@@ -271,19 +271,19 @@ function shareUp() {
 }
 
 const emoji = {
-    "incorrect-light": String.fromCodePoint(0x2b1c),
-    "incorrect-dark": String.fromCodePoint(0x2b1b),
-    "correct-regular": String.fromCodePoint(0x1f7e9),
-    "correct-color-blind": String.fromCodePoint(0x1f7e7),
-    "almost-regular": String.fromCodePoint(0x1f7e8),
-    "almost-color-blind": String.fromCodePoint(0x1f7e6)
+    "incorrect-themeW": String.fromCodePoint(0x2b1c),
+    "incorrect-themeK": String.fromCodePoint(0x2b1b),
+    "correct-themeGY": String.fromCodePoint(0x1f7e9),
+    "correct-themeOB": String.fromCodePoint(0x1f7e7),
+    "almost-themeGY": String.fromCodePoint(0x1f7e8),
+    "almost-themeOB": String.fromCodePoint(0x1f7e6)
 };
 
 function gameDiagram() {
-    var theme = document.body.classList.contains("darkmode") ?
-        "-dark" : "-light";
-    var palette = document.body.classList.contains("colorblind") ?
-        "-color-blind" : "-regular";
+    var theme = document.body.classList.contains("themeK") ?
+        "-themeK" : "-themeW";
+    var palette = document.body.classList.contains("themeOB") ?
+        "-themeOB" : "-themeGY";
 
     var diagram = "";
     for (var i in patterns) {
@@ -386,19 +386,23 @@ function displayRemaining() {
     }
 }
 
-document.getElementById("darkmode").onchange = function() {
-    if (this.checked) {
-        document.body.classList.add("darkmode");
+document.getElementById("theme").onchange = function() {
+    if (this.value.startsWith("GY")) {
+        document.body.classList.remove("themeOB");
+        document.body.classList.add("themeGY");
     } else {
-        document.body.classList.remove("darkmode");
+        // startsWith("OB")
+        document.body.classList.remove("themeGY");
+        document.body.classList.add("themeOB");
     }
-}
 
-document.getElementById("colorblind").onchange = function() {
-    if (this.checked) {
-        document.body.classList.add("colorblind");
+    if (this.value.endsWith("W")) {
+        document.body.classList.remove("themeK");
+        document.body.classList.add("themeW");
     } else {
-        document.body.classList.remove("colorblind");
+        // endsWith("K")
+        document.body.classList.remove("themeW");
+        document.body.classList.add("themeK");
     }
 }
 

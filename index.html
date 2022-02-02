@@ -26,25 +26,24 @@
             gives you back words - all the words that might have been
             Wordle answers in games that could make the same guess
             patterns! (<a href="https://blog.beerriot.com/2022/01/27/dewordle-the-game/">Read more here.</a>) Rules for
-            what the colors mean are the same (<span class="regulartheme">&#x1f7e9;</span><span class="colorblindtheme">&#x1f7e7;</span>:
-            correct letter in correct position, <span class="regulartheme">&#x1f7e8;</span><span class="colorblindtheme">&#x1f7e6;</span>:
-            correct letter in wrong position, <span class="lighttheme">&#x2b1c;</span><span class="darktheme">&#x2b1b;</span>:
+            what the colors mean are the same (<span class="themeGY">&#x1f7e9;</span><span class="themeOB">&#x1f7e7;</span>:
+            correct letter in correct position, <span class="themeGY">&#x1f7e8;</span><span class="themeOB">&#x1f7e6;</span>:
+            correct letter in wrong position, <span class="themeW">&#x2b1c;</span><span class="themeK">&#x2b1b;</span>:
             incorrect letter). See how quickly you can guide it to
             only one word remaining! (Tap the boxes with dotted-line
             borders to change their colors.)
           </p>
         </div>
         <div id="gamecontent">
-          <div class="pure-u-1-2">
+          <div class="pure-u-1">
             <div class="tapme centerme">
-              <input type="checkbox" id="darkmode">
-              <label for="darkmode">Dark Palette</label>
-            </div>
-          </div>
-          <div class="pure-u-1-2">
-            <div class="tapme centerme">
-              <input type="checkbox" id="colorblind">
-              <label for="colorblind">Color-blind Palette</label>
+              <label for="theme">Color theme:</label>
+              <select id="theme">
+                <option value="GYW">&#x1f7e9;&#x1f7e8;&#x2b1c;</option>
+                <option value="GYK">&#x1f7e9;&#x1f7e8;&#x2b1b;</option>
+                <option value="OBW">&#x1f7e7;&#x1f7e6;&#x2b1c;</option>
+                <option value="OBK">&#x1f7e7;&#x1f7e6;&#x2b1b;</option>
+              </select>
             </div>
           </div>
           <div class="pure-u-1">

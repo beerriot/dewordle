@@ -3,7 +3,7 @@ body {
     color: #000000;
 }
 
-body.darkmode {
+body.themeK {
     background-color: #000000;
     color: #ffffff;
 }
@@ -17,7 +17,7 @@ svg {
     border: none;
 }
 
-.darkmode .incorrect svg {
+.themeK .incorrect svg {
     background-color: #666666;
 }
 
@@ -26,7 +26,7 @@ svg {
     border: none;
 }
 
-.colorblind .almost svg {
+.themeOB .almost svg {
     background-color: #0000ff;
 }
 
@@ -35,11 +35,11 @@ svg {
     border: none;
 }
 
-.colorblind .correct svg {
+.themeOB .correct svg {
     background-color: #ff9900;
 }
 
-.colorblind svg text {
+.themeOB svg text {
     fill: #ffffff
 }
 
@@ -47,23 +47,23 @@ svg {
     margin: 3px;
 }
 
-span.colorblindtheme {
+span.themeOB {
     display: none;
 }
-.colorblind span.colorblindtheme {
+.themeOB span.themeOB {
     display: inline;
 }
-.colorblind span.regulartheme {
+.themeOB span.themeGY {
     display: none;
 }
 
-span.darktheme {
+span.themeK {
     display: none;
 }
-.darkmode span.darktheme {
+.themeK span.themeK {
     display: inline;
 }
-.darkmode span.lighttheme {
+.themeK span.themeW {
     display: none;
 }
 
