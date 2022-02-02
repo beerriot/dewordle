@@ -387,7 +387,12 @@ function displayRemaining() {
 }
 
 document.getElementById("theme").onchange = function() {
-    if (this.value.startsWith("GY")) {
+    displayTheme(this.value);
+    window.localStorage.setItem('theme', this.value);
+}
+
+function displayTheme(theme) {
+    if (theme.startsWith("GY")) {
         document.body.classList.remove("themeOB");
         document.body.classList.add("themeGY");
     } else {
@@ -396,7 +401,7 @@ document.getElementById("theme").onchange = function() {
         document.body.classList.add("themeOB");
     }
 
-    if (this.value.endsWith("W")) {
+    if (theme.endsWith("W")) {
         document.body.classList.remove("themeK");
         document.body.classList.add("themeW");
     } else {
@@ -404,6 +409,12 @@ document.getElementById("theme").onchange = function() {
         document.body.classList.remove("themeW");
         document.body.classList.add("themeK");
     }
+}
+
+if (window.localStorage.getItem('theme')) {
+    document.getElementById("theme").value =
+        window.localStorage.getItem('theme');
+    displayTheme(window.localStorage.getItem('theme'));
 }
 
 document.getElementById("showwords").onchange = function() {
