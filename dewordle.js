@@ -290,7 +290,33 @@ guesser.onmessage = function(m) {
                 }
                 if (words.length > 0) {
                     patterns[i].display.removeAttribute("style");
-                    patterns[i].display.children[0].innerHTML = "<i>or</i> "+words.join(", ");
+                    if (words.length <= 8) {
+                        patterns[i].display.children[0].innerHTML = "<i>or</i> "+words.join(", ");
+                    } else {
+                        var firstSix = words.slice(0, 6);
+                        patterns[i].display.children[0].innerHTML = "<i>or</i> "+firstSix.join(", ");
+
+                        var rest = document.createElement("span");
+                        rest.setAttribute("style", "display: none");
+                        rest.innerHTML = ", "+words.slice(6).join(", ");
+                        patterns[i].display.children[0].append(rest);
+
+                        var preview = document.createElement("a");
+                        preview.classList.add("more");
+                        preview.innerHTML = " &#x2026;&nbsp;&#x1f53d;";
+                        preview.onclick = function() {
+                            if (this.classList.contains("more") > 0) {
+                                rest.removeAttribute("style");
+                                this.innerHTML = " &#x1f53c;";
+                                this.classList.remove("more");
+                            } else {
+                                rest.setAttribute("style", "display: none");
+                                this.innerHTML = " &#x2026;&nbsp;&#x1f53d;";
+                                this.classList.add("more");
+                            }
+                        }
+                        patterns[i].display.children[0].append(preview);
+                    }
                 } else {
                     patterns[i].display.children[0].innerText = "";
                 }
