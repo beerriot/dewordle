@@ -9,7 +9,10 @@ onmessage = function(m) {
     if (m.data.type == "reset") {
         reset();
     } else if (m.data.type == "filter") {
-        filter(m.data.count_only, m.data.patterns, m.data.answers);
+        filter(m.data.generation,
+               m.data.count_only,
+               m.data.patterns,
+               m.data.answers);
     } else {
         console.log("Unknown message: m.data");
     }
@@ -20,7 +23,7 @@ function reset() {
     patterns = [];
 }
 
-function filter(count_only, newPatterns, answers) {
+function filter(generation, count_only, newPatterns, answers) {
     for (var i in newPatterns) {
         if (i < patterns.length) {
             patterns[i].guesses =
@@ -36,10 +39,12 @@ function filter(count_only, newPatterns, answers) {
             var count = 0;
             for (x in patterns[i].guesses) { count++; }
             postMessage({"type":"count",
+                         "generation": generation,
                          "pattern": newPatterns[i],
                          "count": count});
         } else {
             postMessage({"type":"words",
+                         "generation": generation,
                          "pattern": newPatterns[i],
                          "words": patterns[i].guesses});
         }

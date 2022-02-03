@@ -263,14 +263,19 @@ function initPatterns(start) {
     displayRemaining();
 }
 
+var generation = 0;
 var guesser = new Worker("guesser.js");
 guesser.onmessage = function(m) {
     if (m.data.type == "count") {
         for (var i in patterns) {
             if (patterns[i].pattern == m.data.pattern) {
                 patterns[i].display.removeAttribute("style");
-                patterns[i].display.getElementsByClassName("matchcount")[0]
-                    .innerText = ""+m.data.count;
+                var count =
+                    patterns[i].display.getElementsByClassName("matchcount")[0];
+                count.innerText = ""+m.data.count;
+                if (m.data.generation == generation) {
+                    count.classList.remove("calculating");
+                }
             }
         }
     } else if (m.data.type == "words") {
@@ -301,7 +306,11 @@ guesser.onerror = function(e) {
 }
 
 function requestGuesses(countOnly) {
+    generation++;
+    Array.from(document.getElementsByClassName("matchcount"))
+        .forEach((x) => x.classList.add("calculating"));
     guesser.postMessage({"type":"filter",
+                         "generation": generation,
                          "count_only": countOnly,
                          "patterns": patterns.map((p) => p.pattern),
                          "answers": remainingWords});

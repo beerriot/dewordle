@@ -102,3 +102,7 @@ span.themeK {
 .guesscount {
     font-size: smaller;
 }
+
+.matchcount.calculating {
+    color: #999999;
+}
