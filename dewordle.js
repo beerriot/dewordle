@@ -64,7 +64,10 @@ var done = document.getElementById("done");
 
 function addrowUp(ev) {
     if (!addPattern()) {
+        requestGuesses(false);
         for (i in build) { build[i].remove(); }
+    } else {
+        requestGuesses(true);
     }
 }
 
@@ -128,25 +131,11 @@ function addPattern(updateHash=true) {
 
     var record = {
         "pattern": pattern,
-        "guesses": guessesForPattern(pattern, remainingWords),
         "display": guesscount.cloneNode(true),
         "tiles": []
     };
     patterns.push(record);
     dupeAndResetBuild();
-
-    // -1 here because the newest pattern has been pre-filtered
-    for (var i = 0; i < patterns.length-1; i++) {
-        var newGuesses = {};
-        for (var j in patterns[i].guesses) {
-            var newMatches = patterns[i].guesses[j].filter(
-                function(m) { return remainingWords.includes(m); });
-            if (newMatches.length > 0) {
-                newGuesses[j] = newMatches;
-            }
-        }
-        patterns[i].guesses = newGuesses;
-    }
 
     displayRemaining();
 
@@ -158,76 +147,6 @@ function addPattern(updateHash=true) {
     }
 }
 
-function guessesForPattern(pattern, remainingWords) {
-    var guesses = {};
-
-    for (var i = 0; i < remainingWords.length; i++) {
-        var rexp = new RegExp(
-            regexForPatternInWord(pattern, remainingWords[i]), "g");
-        var matches = (dict.possible.match(rexp) || []).concat(
-            dict.impossible.match(rexp) || []);
-        for (var j = 0; j < matches.length; j++) {
-            if (score(matches[j], remainingWords[i]) == pattern) {
-                if (matches[j] in guesses) {
-                    guesses[matches[j]].push(remainingWords[i]);
-                } else {
-                    guesses[matches[j]] = [remainingWords[i]];
-                }
-            }
-        }
-    }
-    return guesses;
-}
-
-function regexForPatternInWord(pattern, wordi) {
-    var patternstr = pattern.toString(3).padStart(5, "0");
-    var word = dict.words[wordi];
-    var rexp = "";
-    for (var i = 0; i < patternstr.length; i++) {
-        if (patternstr[i] == "2") {
-            rexp += word[i];
-        } else if (patternstr[i] == "1") {
-            // This picks up more words than it should because of
-            // double-letter oddities.
-            rexp += "["+word.replaceAll(word[i], '')+"]";
-        } else {
-            // This also picks up more words than it should. It would
-            // be great to write "[^WORD]" here, but it actually
-            // misses valid words if you do that. For example, if the
-            // word is CABAL, and the pattern is 11110, using [^CABAL]
-            // for the last letter will miss ABACA. The final A in
-            // ABACA will be scored 0, because the first two A's
-            // claimed the 1's.
-            rexp += "[A-Z]";
-        }
-    }
-    return rexp;
-}
-
-function score(guess, wordi) {
-    var score = ["0","0","0","0","0"];
-    var word = dict.words[wordi].split('');
-
-    for (var i = 0; i < guess.length; i++) {
-        if (guess[i] == word[i]) {
-            score[i] = "2";
-            word[i] = ".";
-        }
-    }
-
-    for (var i = 0; i < guess.length; i++) {
-        if (score[i] == "0") {
-            var j = word.indexOf(guess[i]);
-            if (j >= 0) {
-                score[i] = "1";
-                word[j] = ".";
-            }
-        }
-    }
-
-    return parseInt(score.join(''), 3);
-}
-
 function endGame() {
     if (remainingWords.length == 1) {
         // win
@@ -236,20 +155,6 @@ function endGame() {
 
         addrow.setAttribute("style", "display: none;");
         share.removeAttribute("style");
-
-        for (var i in patterns) {
-            var words = [];
-            for (var j in patterns[i].guesses) { words.push(j); }
-            var first = words.shift();
-            for (var j in first) {
-                patterns[i].tiles[j].getElementsByTagName("text")[0].innerHTML = first[j];
-            }
-            if (words.length > 0) {
-                patterns[i].display.children[0].innerHTML = "<i>or</i> "+words.join(", ");
-            } else {
-                patterns[i].display.children[0].innerText = "";
-            }
-        }
 
         var word = dict.words[remainingWords[0]];
         for (i in word) {
@@ -316,6 +221,7 @@ function resetUp() {
     initPatterns();
     window.location.hash = "";
     displayRemaining();
+    resetGuesser();
 }
 
 const tileNames = {
@@ -348,7 +254,10 @@ function initPatterns(start) {
         }
 
         if (!play) {
+            requestGuesses(false);
             for (var i in build) { build[i].remove(); }
+        } else {
+            requestGuesses(true);
         }
     }
 
@@ -357,6 +266,52 @@ function initPatterns(start) {
         // read above
         displayRemaining();
     }
+}
+
+var guesser = new Worker("guesser.js");
+guesser.onmessage = function(m) {
+    if (m.data.type == "count") {
+        for (var i in patterns) {
+            if (patterns[i].pattern == m.data.pattern) {
+                patterns[i].display.getElementsByClassName("matchcount")[0]
+                    .innerText = ""+m.data.count;
+            }
+        }
+    } else if (m.data.type == "words") {
+        var words = [];
+        for (var j in m.data.words) { words.push(j); }
+        var first = words.shift();
+
+        for (var i in patterns) {
+            if (patterns[i].pattern == m.data.pattern) {
+                for (var j in first) {
+                    patterns[i].tiles[j].getElementsByTagName("text")[0].innerHTML = first[j];
+                }
+                if (words.length > 0) {
+                    patterns[i].display.children[0].innerHTML = "<i>or</i> "+words.join(", ");
+                } else {
+                    patterns[i].display.children[0].innerText = "";
+                }
+            }
+        }
+    } else {
+        console.log("Unknown message: "+m);
+    }
+};
+
+guesser.onerror = function(e) {
+    console.log("guesser error: "+e);
+}
+
+function requestGuesses(countOnly) {
+    guesser.postMessage({"type":"filter",
+                         "count_only": countOnly,
+                         "patterns": patterns.map((p) => p.pattern),
+                         "answers": remainingWords});
+}
+
+function resetGuesser() {
+    guesser.postMessage({"type":"reset"});
 }
 
 var startPatterns = null;
@@ -377,13 +332,6 @@ function displayRemaining() {
 
     document.getElementById("remainingwords").innerText = remainingWords.map(
         function(w) { return dict.words[w]; }).join(", ");
-
-    for (var i = 0; i < patterns.length; i++) {
-        var count = 0;
-        for (x in patterns[i].guesses) { count++; }
-        patterns[i].display.getElementsByClassName("matchcount")[0].innerText =
-            ""+count;
-    }
 }
 
 document.getElementById("theme").onchange = function() {
