@@ -69,6 +69,7 @@ function addrowUp(ev) {
     } else {
         requestGuesses(true);
     }
+    displayRemaining();
 }
 
 function dupeAndResetBuild() {
@@ -136,8 +137,6 @@ function addPattern(updateHash=true) {
     };
     patterns.push(record);
     dupeAndResetBuild();
-
-    displayRemaining();
 
     if (remainingWords.length <= 1) {
         endGame();
@@ -261,11 +260,7 @@ function initPatterns(start) {
         }
     }
 
-    if (patterns.length == 0) {
-        // this will have been called at least once if patterns were
-        // read above
-        displayRemaining();
-    }
+    displayRemaining();
 }
 
 var guesser = new Worker("guesser.js");
