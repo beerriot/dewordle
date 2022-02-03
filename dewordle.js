@@ -268,6 +268,7 @@ guesser.onmessage = function(m) {
     if (m.data.type == "count") {
         for (var i in patterns) {
             if (patterns[i].pattern == m.data.pattern) {
+                patterns[i].display.removeAttribute("style");
                 patterns[i].display.getElementsByClassName("matchcount")[0]
                     .innerText = ""+m.data.count;
             }
@@ -283,6 +284,7 @@ guesser.onmessage = function(m) {
                     patterns[i].tiles[j].getElementsByTagName("text")[0].innerHTML = first[j];
                 }
                 if (words.length > 0) {
+                    patterns[i].display.removeAttribute("style");
                     patterns[i].display.children[0].innerHTML = "<i>or</i> "+words.join(", ");
                 } else {
                     patterns[i].display.children[0].innerText = "";
