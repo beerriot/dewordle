@@ -175,8 +175,10 @@ function shareUp() {
 }
 
 const emoji = {
-    "incorrect-themeW": String.fromCodePoint(0x2b1c),
-    "incorrect-themeK": String.fromCodePoint(0x2b1b),
+    "incorrect-themeW":
+    String.fromCodePoint(0x2b1c)+String.fromCodePoint(0xfe0f),
+    "incorrect-themeK":
+    String.fromCodePoint(0x2b1b)+String.fromCodePoint(0xfe0f),
     "correct-themeGY": String.fromCodePoint(0x1f7e9),
     "correct-themeOB": String.fromCodePoint(0x1f7e7),
     "almost-themeGY": String.fromCodePoint(0x1f7e8),
