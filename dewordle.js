@@ -361,11 +361,11 @@ guesser.onmessage = function(m) {
                         preview.innerHTML = " &#x2026;&nbsp;&#x1f53d;";
                         preview.onclick = function() {
                             if (this.classList.contains("more") > 0) {
-                                rest.removeAttribute("style");
+                                this.previousElementSibling.removeAttribute("style");
                                 this.innerHTML = " &#x1f53c;";
                                 this.classList.remove("more");
                             } else {
-                                rest.setAttribute("style", "display: none");
+                                this.previousElementSibling.setAttribute("style", "display: none");
                                 this.innerHTML = " &#x2026;&nbsp;&#x1f53d;";
                                 this.classList.add("more");
                             }
