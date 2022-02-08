@@ -225,13 +225,33 @@ function resetUp() {
     resetGuesser();
 }
 
-const tileNames = {
-    "correct": ["2", "G", "O"],
-    "almost": ["1", "Y", "B"],
-    "incorrect": ["0", "W", "K"]
-};
-
 var wordsLeft = document.getElementById("wordsleft");
+
+// The square emoji are represented as two UTF-16 characters. This is
+// a map from the "interesting" half of those pairs to the ASCII
+// substitute we use, plus our canonical version.
+const emoji_match = {};
+for (k in emoji) {
+    if (k.startsWith("incorrect")) {
+        // For the white and black squares, the square itself is only
+        // one UTF-16 character. The second character is optional, to
+        // choose a better-looking version.
+        emoji_match[emoji[k].charCodeAt(0)] = {
+            "build": "0",
+            // Chrome, Safari, and Firefox all render emoji in the URL
+            // bar, except for the variation selector, which displays
+            // as 3 percent-encoded bytes, so skip it here to look nicer.
+            "clean": emoji[k].charAt(0)
+        };
+    } else {
+        // For the other colors, the first UTF-16 character is always
+        // the same, and it's the second one that denotes the color.
+        emoji_match[emoji[k].charCodeAt(1)] = {
+            "build": k.startsWith("correct") ? "2" : "1",
+            "clean": emoji[k]
+        };
+    }
+}
 
 var patterns;
 var remainingWords;
@@ -239,21 +259,46 @@ function initPatterns(start) {
     remainingWords = dict.map[242].map(function(x) { return x; });
     patterns = [];
 
-    if (start) {
-        var play = true;
-        for (var i = 0; i < start.length; i += 5) {
-            for (var j = 0; j < 5; j++) {
-                if (tileNames.correct.includes(start[i+j])) {
+    var play = true;
+    var cleanPattern = '';
+    var buildPattern = '';
+    var i = 0;
+    while (start && i < start.length) {
+        var c = start.charCodeAt(i);
+        if (c < 128) {
+            c = start.charAt(i);
+            if ("012".indexOf(c) >= 0) {
+                buildPattern += c;
+                cleanPattern += c;
+            }
+        } else {
+            // Yes, this ignores whether the high 10 bits of the
+            // UTF-16 character are correct.
+            if (c in emoji_match) {
+                buildPattern += emoji_match[c].build;
+                cleanPattern += emoji_match[c].clean;
+            }
+        }
+        // Yes, this ignores characters we don't recognize.
+        i++;
+
+        if (buildPattern.length == 5) {
+            for (var j in buildPattern) {
+                if (buildPattern[j] == "2") {
                     build[j].classList.add("correct");
-                } else if (tileNames.almost.includes(start[i+j])) {
+                } else if (buildPattern[j] == "1") {
                     build[j].classList.add("almost");
                 } else {
                     build[j].classList.add("incorrect");
                 }
             }
-            play &= addPattern(false);
-        }
 
+            play &= addPattern(false);
+            buildPattern = [];
+        }
+    }
+
+    if (cleanPattern.length > 0) {
         if (!play) {
             requestGuesses(false);
             for (var i in build) { build[i].remove(); }
@@ -262,7 +307,7 @@ function initPatterns(start) {
         }
     }
 
-    displayRemaining();
+    return cleanPattern;
 }
 
 var generation = 0;
@@ -348,18 +393,13 @@ function resetGuesser() {
     guesser.postMessage({"type":"reset"});
 }
 
-var startPatterns = null;
-if (window.location.hash && window.location.hash.length > 1) {
-    var count = Math.trunc((window.location.hash.length - 1) / 5);
-    startPatterns = window.location.hash.slice(1, 1 + count * 5);
-    if (startPatterns.length != window.location.hash.length - 1) {
-        // in case someone missed a character during copy & paste,
-        // chop off the partial pattern at the end, so that appending
-        // the next-guessed pattern will work correctly
-        window.location.hash = startPatterns;
-    }
-}
-initPatterns(startPatterns);
+var start = window.location.hash || '';
+start = start.substring(start.indexOf("#")+1);
+start = initPatterns(decodeURI(start));
+window.history.replaceState(
+    '', '', (start == '') ? '/' : '#'+encodeURI(start));
+
+displayRemaining();
 
 function displayRemaining() {
     wordsLeft.innerText = ""+remainingWords.length;
