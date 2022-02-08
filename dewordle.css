@@ -3,7 +3,7 @@ body {
     color: #000000;
 }
 
-body.themeK {
+body.themeK, body.themeK input {
     background-color: #000000;
     color: #ffffff;
 }

@@ -241,14 +241,16 @@ for (k in emoji) {
             // Chrome, Safari, and Firefox all render emoji in the URL
             // bar, except for the variation selector, which displays
             // as 3 percent-encoded bytes, so skip it here to look nicer.
-            "clean": emoji[k].charAt(0)
+            "clean": emoji[k].charAt(0),
+            "class": "incorrect"
         };
     } else {
         // For the other colors, the first UTF-16 character is always
         // the same, and it's the second one that denotes the color.
         emoji_match[emoji[k].charCodeAt(1)] = {
             "build": k.startsWith("correct") ? "2" : "1",
-            "clean": emoji[k]
+            "clean": emoji[k],
+            "class": k.substring(0, k.indexOf("-"))
         };
     }
 }
@@ -262,8 +264,7 @@ function initPatterns(start) {
     var play = true;
     var cleanPattern = '';
     var buildPattern = '';
-    var i = 0;
-    while (start && i < start.length) {
+    for(var i = 0; i < start.length; i++) {
         var c = start.charCodeAt(i);
         if (c < 128) {
             c = start.charAt(i);
@@ -280,7 +281,6 @@ function initPatterns(start) {
             }
         }
         // Yes, this ignores characters we don't recognize.
-        i++;
 
         if (buildPattern.length == 5) {
             for (var j in buildPattern) {
@@ -444,5 +444,53 @@ document.getElementById("showwords").onchange = function() {
         document.getElementById("remainingwords").removeAttribute("style");
     } else {
         document.getElementById("remainingwords").setAttribute("style", "display: none;");
+    }
+}
+
+document.getElementById("paste").onchange = function() {
+    var classList = ["correct", "almost", "incorrect"];
+    var buildClasses = [];
+    for (var j in build) {
+        var found = false;
+        for (var k in classList) {
+            if (build[j].classList.contains(classList[k])) {
+                buildClasses[j] = classList[k];
+                build[j].classList.remove(classList[k]);
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            buildClasses[j] = null;
+        }
+    }
+
+    var i = 0;
+    var j = 0;
+    var play = true;
+    for (i in this.value) {
+        if (this.value.charCodeAt(i) in emoji_match) {
+            build[j].classList.add(
+                emoji_match[this.value.charCodeAt(i)].class);
+            j++;
+        }
+
+        if (j == 5) {
+            play &= addPattern();
+            j = 0;
+        }
+    }
+    this.value = "";
+
+    if (!play) {
+        requestGuesses(false);
+        for (var i in build) { build[i].remove(); }
+    } else {
+        requestGuesses(true);
+        for (var j in build) {
+            if (buildClasses[j] != null) {
+                build[j].classList.add(buildClasses[j]);
+            }
+        }
     }
 }
