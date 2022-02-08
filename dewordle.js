@@ -219,7 +219,7 @@ function resetUp() {
 
     board.innerHTML = "";
     createBuildRow();
-    initPatterns();
+    clearPatterns();
     window.location.hash = "";
     displayRemaining();
     resetGuesser();
@@ -257,9 +257,13 @@ for (k in emoji) {
 
 var patterns;
 var remainingWords;
-function initPatterns(start) {
+function clearPatterns() {
     remainingWords = dict.map[242].map(function(x) { return x; });
     patterns = [];
+}
+
+function initPatterns(start) {
+    clearPatterns();
 
     var play = true;
     var cleanPattern = '';
