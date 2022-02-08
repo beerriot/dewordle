@@ -136,6 +136,7 @@ function addPattern(updateHash=true) {
         "tiles": []
     };
     patterns.push(record);
+    addEditListener(record.display, patterns.length-1);
     dupeAndResetBuild();
 
     if (remainingWords.length <= 1) {
@@ -144,6 +145,37 @@ function addPattern(updateHash=true) {
     } else {
         return true;
     }
+}
+
+function addEditListener(display, i) {
+    var editor = display.getElementsByClassName("editor")[0];
+    editor.onblur = function() {
+        if (!setGuessWord(i, this.value)) {
+            this.value = "";
+        }
+        this.setAttribute("style", "display: none;");
+    }
+
+    display.getElementsByClassName("editguess")[0].onclick = function() {
+        editor.removeAttribute("style");
+        editor.focus();
+    }
+}
+
+function setGuessWord(i, word) {
+    for (var j in remainingWords) {
+        if (score(word, remainingWords[j]) == patterns[i].pattern) {
+            for (var k in patterns[i].tiles) {
+                patterns[i].tiles[k].getElementsByTagName("text")[0].innerHTML = word[k];
+            }
+            return true;
+        }
+    }
+
+    for (var k in patterns[i].tiles) {
+        patterns[i].tiles[k].getElementsByTagName("text")[0].innerHTML = '';
+    }
+    return false;
 }
 
 function endGame() {
