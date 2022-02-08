@@ -106,3 +106,7 @@ span.themeK {
 .matchcount.calculating {
     color: #999999;
 }
+
+#paste {
+    width: 100%;
+}

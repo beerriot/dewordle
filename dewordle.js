@@ -147,6 +147,8 @@ function addPattern(updateHash=true) {
 }
 
 function endGame() {
+    document.getElementById("paste").setAttribute("style", "display: none;");
+
     if (remainingWords.length == 1) {
         // win
         play.setAttribute("style", "display: none;");
@@ -216,6 +218,8 @@ function resetUp() {
 
     win.setAttribute("style", "display:none;");
     play.removeAttribute("style");
+
+    document.getElementById("paste").removeAttribute("style");
 
     board.innerHTML = "";
     createBuildRow();
