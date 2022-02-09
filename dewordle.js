@@ -432,13 +432,21 @@ guesser.onmessage = function(m) {
     } else if (m.data.type == "words") {
         var words = [];
         for (var j in m.data.words) { words.push(j); }
-        var first = words.shift();
 
         for (var i in patterns) {
             if (patterns[i].pattern == m.data.pattern) {
-                for (var j in first) {
-                    patterns[i].tiles[j].getElementsByTagName("text")[0].innerHTML = first[j];
+                if (!(patterns[i].guess &&
+                      patterns[i].guess in m.data.words)) {
+                    var first = words.shift();
+                    for (var j in first) {
+                        patterns[i].tiles[j]
+                            .getElementsByTagName("text")[0]
+                            .innerHTML = first[j];
+                    }
+                } else {
+                    words.splice(words.indexOf(patterns[i].guess), 1);
                 }
+
                 if (words.length > 0) {
                     patterns[i].display.removeAttribute("style");
                     if (words.length <= 8) {
