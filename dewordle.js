@@ -150,8 +150,18 @@ function addPattern(updateHash=true) {
 function addEditListener(display, i) {
     var editor = display.getElementsByClassName("editor")[0];
     editor.onblur = function() {
-        if (!setGuessWord(i, this.value)) {
-            this.value = "";
+        if (setGuessWord(i, this.value)) {
+            if (remainingWords.length == 1) {
+                endGame();
+                requestGuesses(false);
+                for (i in build) { build[i].remove(); }
+            } else {
+                requestGuesses(true);
+            }
+
+            displayRemaining();
+        } else {
+            this.value = ""; // TODO: previous value
         }
         this.setAttribute("style", "display: none;");
     }
@@ -163,19 +173,26 @@ function addEditListener(display, i) {
 }
 
 function setGuessWord(i, word) {
+    var newRemainingWords = [];
     for (var j in remainingWords) {
         if (score(word, remainingWords[j]) == patterns[i].pattern) {
-            for (var k in patterns[i].tiles) {
-                patterns[i].tiles[k].getElementsByTagName("text")[0].innerHTML = word[k];
-            }
-            return true;
+            newRemainingWords.push(remainingWords[j]);
         }
     }
 
-    for (var k in patterns[i].tiles) {
-        patterns[i].tiles[k].getElementsByTagName("text")[0].innerHTML = '';
+    if (newRemainingWords.length > 0) {
+        remainingWords = newRemainingWords;
+
+        for (var k in patterns[i].tiles) {
+            patterns[i].tiles[k].getElementsByTagName("text")[0].innerHTML = word[k];
+        }
+        return true;
+    } else {
+        for (var k in patterns[i].tiles) {
+            patterns[i].tiles[k].getElementsByTagName("text")[0].innerHTML = '';
+        }
+        return false;
     }
-    return false;
 }
 
 function endGame() {
