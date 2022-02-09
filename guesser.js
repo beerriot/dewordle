@@ -21,20 +21,57 @@ onmessage = function(m) {
 };
 
 var patterns = [];
+var answers = [];
 function reset() {
     patterns = [];
+    answers = [];
 }
 
-function filter(generation, count_only, newPatterns, answers) {
-    for (var i in newPatterns) {
-        if (i < patterns.length) {
-            patterns[i].guesses =
-                filterExisting(patterns[i].guesses, answers);
+function compareAnswers(newAnswers) {
+    var i = 0;
+    var j = 0;
+    var same = true;
+    var subset = true;
+    var copy;
+    while (i < answers.length && j < newAnswers.length) {
+        if (answers[i] == newAnswers[j]) {
+            i++;
+            j++;
         } else {
+            same = false;
+            if (answers[i] > newAnswers[j]) {
+                subset = false;
+                break;
+            } else {
+                i++;
+            }
+        }
+    }
+
+    if (j < newAnswers.length) {
+        same = false;
+        subset = false;
+    } else if (i < answers.length) {
+        same = false;
+    }
+
+    return {"same": same, "subset": subset};
+}
+
+function filter(generation, count_only, newPatterns, newAnswers) {
+    var compare = compareAnswers(newAnswers);
+    answers = newAnswers;
+
+    for (var i in newPatterns) {
+        if (i >= patterns.length || !compare.subset ||
+            patterns[i].pattern != newPatterns[i]) {
             patterns[i] = {
                 "pattern": newPatterns[i],
                 "guesses": guessesForPattern(newPatterns[i], answers)
-            }
+            };
+        } else if (!compare.same) {
+            patterns[i].guesses =
+                filterExisting(patterns[i].guesses, answers);
         }
 
         if (count_only) {

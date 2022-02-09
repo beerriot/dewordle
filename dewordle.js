@@ -147,6 +147,24 @@ function addPattern(updateHash=true) {
     }
 }
 
+function rebuildRemainingWords() {
+    var words = dict.map[patterns[0].pattern];
+
+    for (var i = 1; i < patterns.length; i++) {
+        var pwords = dict.map[patterns[i].pattern];
+        words = words.filter((w) => pwords.includes(w));
+    }
+
+    for (var i in patterns) {
+        if (patterns[i].guess != null) {
+            words = words.filter(
+                (w) => (patterns[i].pattern == score(patterns[i].guess, w)));
+        }
+    }
+
+    return words;
+}
+
 function addEditListener(display, i) {
     var editor = display.getElementsByClassName("editor")[0];
     editor.onblur = function() {
@@ -161,7 +179,7 @@ function addEditListener(display, i) {
 
             displayRemaining();
         } else {
-            this.value = ""; // TODO: previous value
+            this.value = patterns[i].guess || '';
         }
         this.setAttribute("style", "display: none;");
     }
@@ -172,27 +190,56 @@ function addEditListener(display, i) {
     }
 }
 
-function setGuessWord(i, word) {
-    var newRemainingWords = [];
-    for (var j in remainingWords) {
-        if (score(word, remainingWords[j]) == patterns[i].pattern) {
-            newRemainingWords.push(remainingWords[j]);
-        }
-    }
+function setGuessWord(i, rawWord) {
+    var word = rawWord.toUpperCase();
 
-    if (newRemainingWords.length > 0) {
-        remainingWords = newRemainingWords;
-
-        for (var k in patterns[i].tiles) {
-            patterns[i].tiles[k].getElementsByTagName("text")[0].innerHTML = word[k];
-        }
-        return true;
-    } else {
-        for (var k in patterns[i].tiles) {
-            patterns[i].tiles[k].getElementsByTagName("text")[0].innerHTML = '';
-        }
+    if (patterns[i].guess == word) {
+        // This is already the guess. Return "unsuccessful" so we
+        // don't request a new set of guesses for it.
         return false;
     }
+
+    if (!(dict.words.includes(word) || dict.impossible.indexOf(word) >= 0)) {
+        // not a valid guess
+        return false;
+    }
+
+    var oldGuess = patterns[i].guess;
+
+    delete patterns[i].guess;
+    var rebuilt = rebuildRemainingWords();
+
+    if (word != "") {
+        var newRemainingWords = [];
+        for (var j in rebuilt) {
+            if (score(word, rebuilt[j]) == patterns[i].pattern) {
+                newRemainingWords.push(rebuilt[j]);
+            }
+        }
+    } else {
+        newRemainingWords = rebuilt;
+    }
+
+    var success;
+    if (newRemainingWords.length > 0) {
+        if (word != "") {
+            patterns[i].guess = word;
+        }
+        for (var k in patterns[i].tiles) {
+            patterns[i].tiles[k].getElementsByTagName("text")[0].innerHTML =
+                (word == "") ? "" : word[k];
+        }
+
+        remainingWords = newRemainingWords;
+        success = true;
+    } else {
+        if (oldGuess != null) {
+            patterns[i].guess = oldGuess;
+        }
+        success = false;
+    }
+
+    return success;
 }
 
 function endGame() {
