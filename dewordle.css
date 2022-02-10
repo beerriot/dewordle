@@ -110,3 +110,11 @@ span.themeK {
 #paste {
     width: 100%;
 }
+
+.autocomplete {
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%)
+}

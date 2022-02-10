@@ -167,6 +167,7 @@ function rebuildRemainingWords() {
 
 function addEditListener(display, i) {
     var editor = display.getElementsByClassName("editor")[0];
+    var autocomplete = display.getElementsByClassName("autocomplete")[0];
     editor.onblur = function() {
         if (setGuessWord(i, this.value)) {
             if (remainingWords.length == 1) {
@@ -182,11 +183,16 @@ function addEditListener(display, i) {
             this.value = patterns[i].guess || '';
         }
         this.setAttribute("style", "display: none;");
+        autocomplete.setAttribute("style", "display: none;");
     }
 
     display.getElementsByClassName("editguess")[0].onclick = function() {
         editor.removeAttribute("style");
         editor.focus();
+        requestAutocomplete(i);
+
+        autocomplete.innerHTML="<option>loading&hellip;</option>";
+        autocomplete.removeAttribute("style");
     }
 }
 
@@ -481,6 +487,16 @@ guesser.onmessage = function(m) {
                 }
             }
         }
+    } else if (m.data.type == "autocomplete") {
+        if (m.data.generation == generation) {
+            patterns[m.data.patterni].guesses = m.data.guesses;
+            var options = m.data.guesses.map(
+                (g) => '<option value="'+g+'">'+g+'</option>');
+            patterns[m.data.patterni]
+                .display
+                .getElementsByClassName("autocomplete")[0]
+                .innerHTML = options;
+        }
     } else {
         console.log("Unknown message: "+m);
     }
@@ -499,6 +515,12 @@ function requestGuesses(countOnly) {
                          "count_only": countOnly,
                          "patterns": patterns.map((p) => p.pattern),
                          "answers": remainingWords});
+}
+
+function requestAutocomplete(patterni) {
+    guesser.postMessage({"type":"autocomplete",
+                         "generation": generation,
+                         "patterni": patterni});
 }
 
 function resetGuesser() {

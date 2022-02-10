@@ -55,8 +55,11 @@
               </div>
               <div id="guesscount" class="pure-u-1" style="display: none">
                 <div class="centerme guesscount">
-                  <div style="width: 100%">
+                  <div style="width: 100%; position: relative">
                     <input class="editor centerme" type="text" style="display: none;"/>
+                    <select class="autocomplete" style="display: none;" size="5">
+                      <option>loading&hellip;</option>
+                    </select>
                   </div>
                   Matches <span class="matchcount">?</span> guesses. <a class="editguess">&#x270f;&#xfe0f;</a>
                 </div>

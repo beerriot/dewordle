@@ -15,6 +15,15 @@ onmessage = function(m) {
                m.data.count_only,
                m.data.patterns,
                m.data.answers);
+    } else if (m.data.type == "autocomplete") {
+        var guesses = [];
+        for (var i in patterns[m.data.patterni].guesses) {
+            guesses.push(i);
+        }
+        postMessage({"type": "autocomplete",
+                     "generation": m.data.generation,
+                     "patterni": m.data.patterni,
+                     "guesses": guesses});
     } else {
         console.log("Unknown message: m.data");
     }
