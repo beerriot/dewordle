@@ -165,25 +165,82 @@ function rebuildRemainingWords() {
     return words;
 }
 
+function hideEdit(e) {
+    for (c of this.parentElement.children) {
+        c.setAttribute("style", "display: none;");
+    }
+}
+
+function maybeHideEdit(e) {
+    if (!this.parentElement.contains(e.relatedTarget)) {
+        hideEdit.call(this, e);
+    }
+}
+
+function setWord(e, i, editor, autocomplete) {
+    if (setGuessWord(i, this.value)) {
+        this.parentElement.children[0].value = this.value;
+
+        if (remainingWords.length == 1) {
+            endGame();
+            requestGuesses(false);
+            for (i in build) { build[i].remove(); }
+        } else {
+            requestGuesses(true);
+        }
+
+        displayRemaining();
+        hideEdit.call(this, e);
+    }
+}
+
+function editKeyUp(e, i, editor, autocomplete) {
+    if (e.key === "Enter") {
+        setWord.call(this, e, i, editor, autocomplete);
+    } else if (e.key === "Escape") {
+        this.value = patterns[i].guess || '';
+        hideEdit.call(this, e);
+    }
+}
+
 function addEditListener(display, i) {
     var editor = display.getElementsByClassName("editor")[0];
     var autocomplete = display.getElementsByClassName("autocomplete")[0];
-    editor.onblur = function() {
-        if (setGuessWord(i, this.value)) {
-            if (remainingWords.length == 1) {
-                endGame();
-                requestGuesses(false);
-                for (i in build) { build[i].remove(); }
-            } else {
-                requestGuesses(true);
-            }
 
-            displayRemaining();
-        } else {
-            this.value = patterns[i].guess || '';
+    editor.onblur = maybeHideEdit;
+    editor.onkeydown = function(e) {
+        if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+            e.preventDefault();
+            var selected = autocomplete.querySelector("option[selected=true]");
+            if (selected) {
+                var next = (e.key == "ArrowDown")
+                    ? selected.nextElementSibling
+                    : selected.previousElementSibling;
+                if (next) {
+                    selected.removeAttribute("selected");
+                    next.setAttribute("selected", "true");
+                    this.value = next.value;
+                }
+            } else {
+                autocomplete.children[0].setAttribute("selected", "true");
+                this.value = autocomplete.children[0].value;
+            }
         }
-        this.setAttribute("style", "display: none;");
-        autocomplete.setAttribute("style", "display: none;");
+    }
+
+    var keyup = function(e) {
+        console.log("keyup: "+e.key);
+        editKeyUp.call(this, e, i, editor, autocomplete);
+    }
+    editor.onkeyup = keyup;
+    autocomplete.onkeyup = keyup;
+
+    autocomplete.onblur = maybeHideEdit;
+    autocomplete.oninput = function() {
+        editor.value = this.value;
+    }
+    autocomplete.onclick = function(e) {
+        setWord.call(this, e, i, editor, autocomplete);
     }
 
     display.getElementsByClassName("editguess")[0].onclick = function() {
