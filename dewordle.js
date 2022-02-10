@@ -208,6 +208,57 @@ function addEditListener(display, i) {
     var autocomplete = display.getElementsByClassName("autocomplete")[0];
 
     editor.onblur = maybeHideEdit;
+    editor.oninput = function() {
+        if (patterns[i].guesses) {
+            var search = this.value.toUpperCase();
+            var j = 0;
+            var k = 0;
+            while (j < patterns[i].guesses.length) {
+                if (patterns[i].guesses[j].indexOf(search) >= 0) {
+                    while (k < autocomplete.children.length) {
+                        if (patterns[i].guesses[j] ==
+                            autocomplete.children[k].value) {
+                            k++;
+                            break;
+                        } else if (patterns[i].guesses[j] <
+                                   autocomplete.children[k].value) {
+                            var opt = document.createElement('option');
+                            opt.setAttribute("value", patterns[i].guesses[j]);
+                            opt.innerText = patterns[i].guesses[j];
+                            autocomplete.children[k].before(opt);
+                            k++;
+                            break;
+                        }
+                        k++;
+                    }
+                    if (k == autocomplete.children.length &&
+                        (k == 0 ||
+                         patterns[i].guesses[j] !=
+                         autocomplete.children[k-1].value)) {
+                        var opt = document.createElement('option');
+                        opt.setAttribute("value", patterns[i].guesses[j]);
+                        opt.innerText = patterns[i].guesses[j];
+                        autocomplete.append(opt);
+                        k++;
+                    }
+                } else {
+                    while (k < autocomplete.children.length) {
+                        if (patterns[i].guesses[j] ==
+                            autocomplete.children[k].value) {
+                            autocomplete.children[k].remove();
+                            break;
+                        } else if (patterns[i].guesses[j] <
+                                   autocomplete.children[k].value) {
+                            break;
+                        }
+                        k++;
+                    }
+                }
+                j++;
+            }
+        }
+    }
+
     editor.onkeydown = function(e) {
         if (e.key === "ArrowDown" || e.key === "ArrowUp") {
             e.preventDefault();
@@ -546,8 +597,8 @@ guesser.onmessage = function(m) {
         }
     } else if (m.data.type == "autocomplete") {
         if (m.data.generation == generation) {
-            patterns[m.data.patterni].guesses = m.data.guesses;
-            var options = m.data.guesses.map(
+            patterns[m.data.patterni].guesses = m.data.guesses.sort();
+            var options = patterns[m.data.patterni].guesses.map(
                 (g) => '<option value="'+g+'">'+g+'</option>');
             patterns[m.data.patterni]
                 .display
