@@ -119,12 +119,14 @@ function patternFrom(elements) {
     return parseInt(patternString, 3);
 }
 
+function hashFragment() {
+    return patterns.map(
+        (p) => p.pattern.toString(3).padStart(5, "0")
+            + (p.guess || '')).join('');
+}
+
 function addPattern(updateHash=true) {
     var pattern = patternFrom(build);
-
-    if (updateHash) {
-        window.location.hash += pattern.toString(3).padStart(5, "0");
-    }
 
     var words = dict.map[pattern];
     remainingWords = remainingWords.filter(
@@ -138,6 +140,10 @@ function addPattern(updateHash=true) {
     patterns.push(record);
     addEditListener(record.display, patterns.length-1);
     dupeAndResetBuild();
+
+    if (updateHash) {
+        window.history.replaceState('', '', "#"+hashFragment());
+    }
 
     if (remainingWords.length <= 1) {
         endGame();
@@ -179,6 +185,7 @@ function maybeHideEdit(e) {
 
 function setWord(e, i, editor, autocomplete) {
     if (setGuessWord(i, this.value)) {
+        window.history.replaceState('', '', "#"+hashFragment());
         this.parentElement.children[0].value = this.value;
 
         if (remainingWords.length == 1) {
@@ -393,7 +400,7 @@ function resetUp() {
     board.innerHTML = "";
     createBuildRow();
     clearPatterns();
-    window.location.hash = "";
+    window.history.replaceState('', '', '/');
     displayRemaining();
     resetGuesser();
 }
@@ -435,12 +442,14 @@ function clearPatterns() {
     patterns = [];
 }
 
+const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 function initPatterns(start) {
     clearPatterns();
 
     var play = true;
     var cleanPattern = '';
     var buildPattern = '';
+    var guess = '';
     for(var i = 0; i < start.length; i++) {
         var c = start.charCodeAt(i);
         if (c < 128) {
@@ -448,6 +457,8 @@ function initPatterns(start) {
             if ("012".indexOf(c) >= 0) {
                 buildPattern += c;
                 cleanPattern += c;
+            } else if(letters.indexOf(c) >= 0) {
+                guess += c;
             }
         } else {
             // Yes, this ignores whether the high 10 bits of the
@@ -471,7 +482,16 @@ function initPatterns(start) {
             }
 
             play &= addPattern(false);
-            buildPattern = [];
+            buildPattern = '';
+        }
+
+        if (guess.length == 5) {
+            if (patterns.length > 0 && !patterns[patterns.length-1].guess) {
+                if (setGuessWord(patterns.length-1, guess)) {
+                    play &= remainingWords.length > 1;
+                }
+                guess = '';
+            }
         }
     }
 
@@ -598,7 +618,7 @@ var start = window.location.hash || '';
 start = start.substring(start.indexOf("#")+1);
 start = initPatterns(decodeURI(start));
 window.history.replaceState(
-    '', '', (start == '') ? '/' : '#'+encodeURI(start));
+    '', '', (start == '') ? '/' : '#'+hashFragment());
 
 displayRemaining();
 
