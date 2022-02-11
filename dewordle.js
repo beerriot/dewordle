@@ -64,6 +64,7 @@ var done = document.getElementById("done");
 
 function addrowUp(ev) {
     if (!addPattern()) {
+        endGame();
         requestGuesses(false);
         for (i in build) { build[i].remove(); }
     } else {
@@ -145,12 +146,7 @@ function addPattern(updateHash=true) {
         window.history.replaceState('', '', "#"+hashFragment());
     }
 
-    if (remainingWords.length <= 1) {
-        endGame();
-        return false;
-    } else {
-        return true;
-    }
+    return remainingWords.length > 1;
 }
 
 function rebuildRemainingWords() {
@@ -497,6 +493,7 @@ function initPatterns(start) {
 
     if (cleanPattern.length > 0) {
         if (!play) {
+            endGame();
             requestGuesses(false);
             for (var i in build) { build[i].remove(); }
         } else {
@@ -704,6 +701,7 @@ document.getElementById("paste").onchange = function() {
     this.value = "";
 
     if (!play) {
+        endGame();
         requestGuesses(false);
         for (var i in build) { build[i].remove(); }
     } else {
