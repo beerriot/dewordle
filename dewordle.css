@@ -107,6 +107,14 @@ span.themeK {
     color: #999999;
 }
 
+#gameboard .matchcountanswer {
+    display: none;
+}
+
+#answerrow .matchcountguess {
+    display: none;
+}
+
 #paste {
     width: 100%;
 }

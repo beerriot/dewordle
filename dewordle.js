@@ -25,18 +25,28 @@ var guesscount = document.getElementById("guesscount");
 guesscount.removeAttribute("id");
 guesscount.remove();
 
-var build;
-function createBuildRow() {
-    build = [];
-    for (var i = 0; i < 5; i++) {
-        build.push(square.cloneNode(true));
-        build[i].onpointerdown = inputDownHandler;
-        build[i].onpointerup = buildUp;
-        build[i].ontouchend = noZoom;
-        board.append(build[i]);
-    }
+var buildrow = document.getElementById("buildrow");
+var build = [];
+for (var i = 0; i < 5; i++) {
+    build.push(square.cloneNode(true));
+    build[i].onpointerdown = inputDownHandler;
+    build[i].onpointerup = buildUp;
+    build[i].ontouchend = noZoom;
+    buildrow.append(build[i]);
 }
-createBuildRow();
+
+var answerrow = document.getElementById("answerrow");
+var answer = [];
+for (var i = 0; i < 5; i++) {
+    answer.push(square.cloneNode(true));
+    answer[i].ontouchend = noZoom;
+    answer[i].classList.add("correct");
+    answerrow.append(answer[i]);
+}
+var answercount = guesscount.cloneNode(true);
+answercount.removeAttribute("style");
+answerrow.append(answercount);
+addEditListener(answercount, 0);
 
 function inputDownHandler(ev) {
     ev.preventDefault();
@@ -73,7 +83,24 @@ function addrowUp(ev) {
     displayRemaining();
 }
 
-function dupeAndResetBuild() {
+function resetBuild() {
+    for (var b of build) {
+        b.classList.remove("correct");
+        b.classList.remove("almost");
+        b.classList.remove("incorrect");
+    }
+}
+
+function resetAnswer() {
+    for (var a of answer) {
+        a.getElementsByTagName("text")[0].innerText = "";
+    }
+
+    answercount.getElementsByClass("matchcount")[0]
+        .innerHTML = ""+remainingWords.length;
+}
+
+function dupeBuild() {
     for (var i = 0; i < 5; i++) {
         var clone = build[i].cloneNode(true);
         if (!(clone.classList.contains("correct")
@@ -82,14 +109,10 @@ function dupeAndResetBuild() {
         }
 
         patterns[patterns.length-1].tiles.push(clone);
-        build[0].before(clone);
-
-        build[i].classList.remove("correct");
-        build[i].classList.remove("almost");
-        build[i].classList.remove("incorrect");
+        board.append(clone);
     }
 
-    build[0].before(patterns[patterns.length-1].display);
+    board.append(patterns[patterns.length-1].display);
 }
 
 function buildUp(ev) {
@@ -121,9 +144,10 @@ function patternFrom(elements) {
 }
 
 function hashFragment() {
-    return patterns.map(
-        (p) => p.pattern.toString(3).padStart(5, "0")
-            + (p.guess || '')).join('');
+    return (patterns[0].guess || '')
+        + patterns.slice(1).map(
+            (p) => p.pattern.toString(3).padStart(5, "0")
+                + (p.guess || '')).join('');
 }
 
 function addPattern(updateHash=true) {
@@ -140,7 +164,8 @@ function addPattern(updateHash=true) {
     };
     patterns.push(record);
     addEditListener(record.display, patterns.length-1);
-    dupeAndResetBuild();
+    dupeBuild();
+    resetBuild();
 
     if (updateHash) {
         window.history.replaceState('', '', "#"+hashFragment());
@@ -345,7 +370,7 @@ function endGame() {
 }
 
 function shareUp() {
-    navigator.clipboard.writeText("I found a "+patterns.length+" pattern DeWordle!"+gameDiagram()).then(function() { alert("Copied to clipboard!"); });
+    navigator.clipboard.writeText("I found a "+(patterns.length-1)+" pattern DeWordle!"+gameDiagram()).then(function() { alert("Copied to clipboard!"); });
 }
 
 const emoji = {
@@ -367,6 +392,11 @@ function gameDiagram() {
 
     var diagram = "";
     for (var i in patterns) {
+        if (i == 0) {
+            // skip answer pattern
+            continue;
+        }
+
         diagram += "\n";
 
         for (j in patterns[i].tiles) {
@@ -394,8 +424,9 @@ function resetUp() {
     document.getElementById("paste").removeAttribute("style");
 
     board.innerHTML = "";
-    createBuildRow();
+    resetBuild();
     clearPatterns();
+    resetAnswer();
     window.history.replaceState('', '', '/');
     displayRemaining();
     resetGuesser();
@@ -435,7 +466,11 @@ var patterns;
 var remainingWords;
 function clearPatterns() {
     remainingWords = dict.map[242].map(function(x) { return x; });
-    patterns = [];
+    patterns = [{
+        "pattern": 242,
+        "display": answercount,
+        "tiles": answer
+    }];
 }
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -482,12 +517,10 @@ function initPatterns(start) {
         }
 
         if (guess.length == 5) {
-            if (patterns.length > 0 && !patterns[patterns.length-1].guess) {
-                if (setGuessWord(patterns.length-1, guess)) {
-                    play &= remainingWords.length > 1;
-                }
-                guess = '';
+            if (setGuessWord(patterns.length-1, guess)) {
+                play &= remainingWords.length > 1;
             }
+            guess = '';
         }
     }
 
