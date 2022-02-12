@@ -21,9 +21,9 @@ var board = square.parentElement;
 square.removeAttribute("id");
 square.remove();
 
-var guesscount = document.getElementById("guesscount");
-guesscount.removeAttribute("id");
-guesscount.remove();
+var display = document.getElementById("display");
+display.removeAttribute("id");
+display.remove();
 
 var buildrow = document.getElementById("buildrow");
 var build = [];
@@ -43,10 +43,10 @@ for (var i = 0; i < 5; i++) {
     answer[i].classList.add("correct");
     answerrow.append(answer[i]);
 }
-var answercount = guesscount.cloneNode(true);
-answercount.removeAttribute("style");
-answerrow.append(answercount);
-addEditListener(answercount, 0);
+var answerdisplay = display.cloneNode(true);
+answerdisplay.removeAttribute("style");
+answerrow.append(answerdisplay);
+addEditListener(answerdisplay, 0);
 
 function inputDownHandler(ev) {
     ev.preventDefault();
@@ -76,7 +76,6 @@ function addrowUp(ev) {
     if (!addPattern()) {
         endGame();
         requestGuesses(false);
-        for (i in build) { build[i].remove(); }
     } else {
         requestGuesses(true);
     }
@@ -93,11 +92,13 @@ function resetBuild() {
 
 function resetAnswer() {
     for (var a of answer) {
-        a.getElementsByTagName("text")[0].innerText = "";
+        a.getElementsByTagName("text")[0].innerHTML = "";
     }
 
-    answercount.getElementsByClass("matchcount")[0]
+    answerdisplay.getElementsByClassName("matchcount")[0]
         .innerHTML = ""+remainingWords.length;
+    answerdisplay.getElementsByClassName("matchsummary")[0]
+        .removeAttribute("style");
 }
 
 function dupeBuild() {
@@ -159,7 +160,7 @@ function addPattern(updateHash=true) {
 
     var record = {
         "pattern": pattern,
-        "display": guesscount.cloneNode(true),
+        "display": display.cloneNode(true),
         "tiles": []
     };
     patterns.push(record);
@@ -212,7 +213,6 @@ function setWord(e, i, editor, autocomplete) {
         if (remainingWords.length == 1) {
             endGame();
             requestGuesses(false);
-            for (i in build) { build[i].remove(); }
         } else {
             requestGuesses(true);
         }
@@ -355,11 +355,11 @@ function endGame() {
         share.removeAttribute("style");
 
         var word = dict.words[remainingWords[0]];
-        for (i in word) {
-            var tile = build[0].cloneNode(true);
-            tile.classList.add("correct");
-            tile.getElementsByTagName("text")[0].innerHTML = word[i];
-            build[0].before(tile);
+        if (!patterns[0].guess) {
+            for (i in word) {
+                patterns[0].tiles[i].getElementsByTagName("text")[0]
+                    .innerHTML = word[i];
+            }
         }
     } else {
         // lose
@@ -468,7 +468,7 @@ function clearPatterns() {
     remainingWords = dict.map[242].map(function(x) { return x; });
     patterns = [{
         "pattern": 242,
-        "display": answercount,
+        "display": answerdisplay,
         "tiles": answer
     }];
 }
@@ -528,7 +528,6 @@ function initPatterns(start) {
         if (!play) {
             endGame();
             requestGuesses(false);
-            for (var i in build) { build[i].remove(); }
         } else {
             requestGuesses(true);
         }
@@ -572,35 +571,47 @@ guesser.onmessage = function(m) {
 
                 if (words.length > 0) {
                     patterns[i].display.removeAttribute("style");
+                    patterns[i].display
+                        .getElementsByClassName("matchsummary")[0]
+                        .setAttribute("style", "display: none");
+                    patterns[i].display
+                        .getElementsByClassName("matchwords")[0]
+                        .removeAttribute("style");
+
                     if (words.length <= 8) {
-                        patterns[i].display.children[0].innerHTML = "<i>or</i> "+words.join(", ");
+                        patterns[i].display
+                            .getElementsByClassName("matchshort")[0]
+                            .innerHTML = words.join(", ");
                     } else {
                         var firstSix = words.slice(0, 6);
-                        patterns[i].display.children[0].innerHTML = "<i>or</i> "+firstSix.join(", ");
+                        patterns[i].display
+                            .getElementsByClassName("matchshort")[0]
+                            .innerHTML = firstSix.join(", ");
 
-                        var rest = document.createElement("span");
-                        rest.setAttribute("style", "display: none");
-                        rest.innerHTML = ", "+words.slice(6).join(", ");
-                        patterns[i].display.children[0].append(rest);
+                        patterns[i].display
+                            .getElementsByClassName("matchrest")[0]
+                            .removeAttribute("style");
+                        patterns[i].display
+                            .getElementsByClassName("matchlong")[0]
+                            .innerHTML = ", "+words.slice(6).join(", ");
 
-                        var preview = document.createElement("a");
-                        preview.classList.add("more");
-                        preview.innerHTML = " &#x2026;&nbsp;&#x1f53d;";
+                        var preview = patterns[i].display
+                            .getElementsByClassName("matchexpand")[0];;
                         preview.onclick = function() {
-                            if (this.classList.contains("more") > 0) {
-                                this.previousElementSibling.removeAttribute("style");
-                                this.innerHTML = " &#x1f53c;";
-                                this.classList.remove("more");
+                            var rest = this.parentElement;
+                            if (rest.classList.contains("less")) {
+                                rest.classList.remove("less");
+                                rest.classList.add("more");
                             } else {
-                                this.previousElementSibling.setAttribute("style", "display: none");
-                                this.innerHTML = " &#x2026;&nbsp;&#x1f53d;";
-                                this.classList.add("more");
+                                rest.classList.remove("more");
+                                rest.classList.add("less");
                             }
                         }
-                        patterns[i].display.children[0].append(preview);
                     }
                 } else {
-                    patterns[i].display.children[0].innerText = "";
+                    patterns[i].display
+                        .getElementsByClassName("matchsummary")[0]
+                        .setAttribute("style", "display: none;");
                 }
             }
         }
@@ -736,7 +747,6 @@ document.getElementById("paste").onchange = function() {
     if (!play) {
         endGame();
         requestGuesses(false);
-        for (var i in build) { build[i].remove(); }
     } else {
         requestGuesses(true);
         for (var j in build) {

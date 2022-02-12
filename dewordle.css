@@ -99,12 +99,21 @@ span.themeK {
     max-width: 400px;
 }
 
-.guesscount {
+.display {
     font-size: smaller;
 }
 
 .matchcount.calculating {
     color: #999999;
+}
+
+.matchrest.less .matchlong,
+.matchrest.less .matchless {
+    display:none;
+}
+
+.matchrest.more .matchmore {
+    display: none;
 }
 
 #gameboard .matchcountanswer {

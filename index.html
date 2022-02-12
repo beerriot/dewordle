@@ -53,15 +53,28 @@
                   <text width="90%" height="90%" x="50" y="50" fill="black" font-size="90" font-family="Helvetica, Arial, sans-serif" text-anchor="middle" dominant-baseline="central"></text>
                 </svg>
               </div>
-              <div id="guesscount" class="pure-u-1" style="display: none">
-                <div class="centerme guesscount">
+              <div id="display" class="pure-u-1" style="display: none">
+                <div class="centerme display">
                   <div style="width: 100%; position: relative">
                     <input class="editor centerme" type="text" style="display: none;"/>
                     <select class="autocomplete" style="display: none;" size="5">
                       <option>loading&hellip;</option>
                     </select>
                   </div>
-                  Matches <span class="matchcount">?</span> <span class="matchcountguess">guesses</span><span class="matchcountanswer">answers</span>. <a class="editguess">&#x270f;&#xfe0f;</a>
+                  <div class="matchsummary">
+                    Matches <span class="matchcount">?</span> <span class="matchcountguess">guesses</span><span class="matchcountanswer">answers</span>. <a class="editguess">&#x270f;&#xfe0f;</a>
+                  </div>
+                  <div class="matchwords" style="display: none;">
+                    <i>or</i>
+                    <span class="matchshort"></span>
+                    <span class="matchrest less" style="display: none;">
+                      <span class="matchlong"></span>
+                      <a class="matchexpand">
+                        <span class="matchmore">&#x2026;&nbsp;&#x1f53d;</span>
+                        <span class="matchless">&#x1f53c;</span>
+                      </a>
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
