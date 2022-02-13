@@ -605,12 +605,7 @@ function onCountMessage(m) {
             patterns[i].display.classList.remove("words");
             patterns[i].display.classList.add("summary");
 
-            var count =
-                patterns[i].display.getElementsByClassName("matchcount")[0];
-            count.innerText = ""+m.data.count;
-            if (m.data.generation == generation) {
-                count.classList.remove("calculating");
-            }
+            fillMatchCount(i, m.data.count, m.data.generation);
         }
     }
 }
@@ -633,7 +628,7 @@ function onWordsMessage(m) {
                     m.data.words.indexOf(patterns[i].guess), 1);
             }
 
-            fillMatchCount(i, count);
+            fillMatchCount(i, count, m.data.generation);
             fillMatchWords(i, m.data.words);
 
             if (count > 0) {
@@ -645,10 +640,13 @@ function onWordsMessage(m) {
     }
 }
 
-function fillMatchCount(i, count) {
+function fillMatchCount(i, count, countgen) {
     var mc = patterns[i].display.getElementsByClassName("matchcount")[0];
-    mc.classList.remove("calculating");
-    mc.innerHTML = ""+count;
+    mc.innerText = ""+count;
+
+    if (countgen == generation) {
+        mc.classList.remove("calculating");
+    }
 }
 
 function fillMatchWords(i, words) {
@@ -738,7 +736,7 @@ window.history.replaceState(
 displayRemaining();
 
 function displayRemaining() {
-    fillMatchCount(0, remainingWords.length);
+    fillMatchCount(0, remainingWords.length, generation);
     fillMatchWords(0, remainingWords);
 }
 
