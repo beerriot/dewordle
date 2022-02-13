@@ -91,10 +91,13 @@ function filter(generation, count_only, newPatterns, newAnswers) {
                          "pattern": newPatterns[i],
                          "count": count});
         } else {
+            var guesses = [];
+            for (g in patterns[i].guesses) { guesses.push(g); }
+
             postMessage({"type":"words",
                          "generation": generation,
                          "pattern": newPatterns[i],
-                         "words": patterns[i].guesses});
+                         "words": guesses});
         }
     }
 }

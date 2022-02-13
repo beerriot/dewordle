@@ -74,7 +74,6 @@ var reset = document.getElementById("reset");
 reset.onpointerdown = inputDownHandler;
 reset.onpointerup = resetUp;
 
-var play = document.getElementById("play");
 var win = document.getElementById("win");
 var done = document.getElementById("done");
 
@@ -436,7 +435,6 @@ function resetUp() {
     done.setAttribute("style", "display: none;");
 
     win.setAttribute("style", "display:none;");
-    play.removeAttribute("style");
 
     document.getElementById("paste").removeAttribute("style");
 
@@ -588,68 +586,80 @@ function onCountMessage(m) {
 }
 
 function onWordsMessage(m) {
-    var words = [];
-    for (var j in m.data.words) { words.push(j); }
+    var count = m.data.words.length;
 
     for (var i in patterns) {
         if (patterns[i].pattern == m.data.pattern) {
             if (!(patterns[i].guess &&
-                  patterns[i].guess in m.data.words)) {
-                var first = words.shift();
+                  m.data.words.includes(patterns[i].guess))) {
+                var first = m.data.words.shift();
                 for (var j in first) {
                     patterns[i].tiles[j]
                         .getElementsByTagName("text")[0]
                         .innerHTML = first[j];
                 }
             } else {
-                words.splice(words.indexOf(patterns[i].guess), 1);
+                m.data.words.splice(
+                    m.data.words.indexOf(patterns[i].guess), 1);
             }
 
-            var mc = patterns[i].display
-                .getElementsByClassName("matchcount")[0];
-            mc.classList.remove("calculating");
-            mc.innerHTML = ""+words.length;
+            fillMatchCount(i, count);
+            fillMatchWords(i, m.data.words);
 
-            if (words.length > 0) {
-                patterns[i].display.classList.remove("summary");
-                patterns[i].display.classList.add("words");
-
-                if (words.length <= 8) {
-                    patterns[i].display
-                        .getElementsByClassName("matchshort")[0]
-                        .innerHTML = words.join(", ");
-                } else {
-                    var firstSix = words.slice(0, 6);
-                    patterns[i].display
-                        .getElementsByClassName("matchshort")[0]
-                        .innerHTML = firstSix.join(", ");
-
-                    patterns[i].display
-                        .getElementsByClassName("matchrest")[0]
-                        .removeAttribute("style");
-                    patterns[i].display
-                        .getElementsByClassName("matchlong")[0]
-                        .innerHTML = ", "+words.slice(6).join(", ");
-
-                    var preview = patterns[i].display
-                        .getElementsByClassName("matchexpand")[0];;
-                    preview.onclick = function() {
-                        var rest = this.parentElement;
-                        if (rest.classList.contains("less")) {
-                            rest.classList.remove("less");
-                            rest.classList.add("more");
-                        } else {
-                            rest.classList.remove("more");
-                            rest.classList.add("less");
-                        }
-                    }
-                }
+            if (count > 0) {
+                showMatchWords(i);
             } else {
-                patterns[i].display.classList.remove("words");
-                patterns[i].display.classList.add("summary");
+                showMatchCount(i);
             }
         }
     }
+}
+
+function fillMatchCount(i, count) {
+    var mc = patterns[i].display.getElementsByClassName("matchcount")[0];
+    mc.classList.remove("calculating");
+    mc.innerHTML = ""+count;
+}
+
+function fillMatchWords(i, words) {
+    if (words.length <= 8) {
+        patterns[i].display.getElementsByClassName("matchshort")[0]
+            .innerHTML = words.join(", ");
+    } else {
+        var firstSix = words.slice(0, 6);
+        patterns[i].display.getElementsByClassName("matchshort")[0]
+            .innerHTML = firstSix.join(", ");
+
+        patterns[i].display.getElementsByClassName("matchrest")[0]
+            .removeAttribute("style");
+        patterns[i].display.getElementsByClassName("matchlong")[0]
+            .innerHTML = ", "+words.slice(6).join(", ");
+
+        var preview = patterns[i].display
+            .getElementsByClassName("matchexpand")[0];
+        preview.onclick = previewExpand;
+    }
+}
+
+function previewExpand() {
+    var rest = this.parentElement;
+    if (rest.classList.contains("less")) {
+        rest.classList.remove("less");
+        rest.classList.add("more");
+    } else {
+        rest.classList.remove("more");
+        rest.classList.add("less");
+    }
+}
+
+function showMatchCount(i) {
+    patterns[i].display.classList.remove("words");
+    patterns[i].display.classList.add("summary");
+}
+
+function showMatchWords(i) {
+    patterns[i].display.classList.remove("summary");
+    patterns[i].display.classList.add("words");
 }
 
 function onAutocompleteMessage(m) {
@@ -698,10 +708,8 @@ window.history.replaceState(
 displayRemaining();
 
 function displayRemaining() {
-    wordsLeft.innerText = ""+remainingWords.length;
-
-    document.getElementById("remainingwords").innerText = remainingWords.map(
-        function(w) { return dict.words[w]; }).join(", ");
+    fillMatchCount(0, remainingWords.length);
+    fillMatchWords(0, remainingWords);
 }
 
 document.getElementById("theme").onchange = function() {
@@ -733,14 +741,6 @@ if (window.localStorage.getItem('theme')) {
     document.getElementById("theme").value =
         window.localStorage.getItem('theme');
     displayTheme(window.localStorage.getItem('theme'));
-}
-
-document.getElementById("showwords").onchange = function() {
-    if (this.checked) {
-        document.getElementById("remainingwords").removeAttribute("style");
-    } else {
-        document.getElementById("remainingwords").setAttribute("style", "display: none;");
-    }
 }
 
 document.getElementById("paste").onchange = function() {
