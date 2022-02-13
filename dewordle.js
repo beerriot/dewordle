@@ -444,8 +444,6 @@ function gameDiagram() {
 }
 
 function resetUp() {
-    share.setAttribute("style", "display: none;");
-
     board.innerHTML = "";
     resetBuild();
     clearPatterns();
