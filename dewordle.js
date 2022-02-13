@@ -84,25 +84,32 @@ function addrowUp(ev) {
     displayRemaining();
 }
 
-function eraserowUp(i) {
-    return function(ev) {
-        for (t of patterns[i].tiles) {
-            t.remove();
+function eraserowUp(ev) {
+    var i = 1;
+    for (var prev = this.parentElement.previousElementSibling;
+         prev;
+         prev = prev.previousElementSibling) {
+        if (prev.classList.contains("rightpad")) {
+            i++;
         }
-        patterns[i].display.previousElementSibling.remove(); //rightpad
-        patterns[i].display.previousElementSibling.remove(); //leftpad
-        patterns[i].display.remove();
+    }
 
-        patterns.splice(i, 1);
-        remainingWords = rebuildRemainingWords();
-        var fragment = hashFragment();
-        window.history.replaceState('', '', fragment ? "#"+fragment : '');
+    for (t of patterns[i].tiles) {
+        t.remove();
+    }
+    patterns[i].display.previousElementSibling.remove(); //rightpad
+    patterns[i].display.previousElementSibling.remove(); //leftpad
+    patterns[i].display.remove();
 
-        if (remainingWords.length > 1) {
-            requestGuesses(true);
-        } else {
-            requestGuesses(false);
-        }
+    patterns.splice(i, 1);
+    remainingWords = rebuildRemainingWords();
+    var fragment = hashFragment();
+    window.history.replaceState('', '', fragment ? "#"+fragment : '');
+
+    if (remainingWords.length > 1) {
+        requestGuesses(true);
+    } else {
+        requestGuesses(false);
     }
 }
 
@@ -142,7 +149,7 @@ function dupeBuild() {
     var right = rightpad.cloneNode(true);
     var erase = right.getElementsByClassName("erase")[0];
     erase.onpointerdown = inputDownHandler;
-    erase.onpointerup = eraserowUp(patterns.length-1);
+    erase.onpointerup = eraserowUp;
     board.append(right);
 
     board.append(patterns[patterns.length-1].display);
