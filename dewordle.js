@@ -98,6 +98,8 @@ function eraserowUp(i) {
 
         patterns.splice(i, 1);
         remainingWords = rebuildRemainingWords();
+        var fragment = hashFragment();
+        window.history.replaceState('', '', fragment ? "#"+fragment : '');
 
         if (remainingWords.length > 1) {
             requestGuesses(true);
