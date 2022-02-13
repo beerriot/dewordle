@@ -631,9 +631,14 @@ function onWordsMessage(m) {
             fillMatchCount(i, count, m.data.generation);
             fillMatchWords(i, m.data.words);
 
-            if (count > 0) {
+            if (count == 1) {
+                // only one word - no further details needed
+                hideMatchCount(i);
+                hideMatchWords(i);
+            } else if (count > 1) {
                 showMatchWords(i);
             } else {
+                // shows "zero"
                 showMatchCount(i);
             }
         }
@@ -681,13 +686,20 @@ function previewExpand() {
 }
 
 function showMatchCount(i) {
-    patterns[i].display.classList.remove("words");
+    hideMatchWords();
     patterns[i].display.classList.add("summary");
 }
 
-function showMatchWords(i) {
+function hideMatchCount(i) {
     patterns[i].display.classList.remove("summary");
+}
+function showMatchWords(i) {
+    hideMatchCount(i);
     patterns[i].display.classList.add("words");
+}
+
+function hideMatchWords(i) {
+    patterns[i].display.classList.remove("words");
 }
 
 function onAutocompleteMessage(m) {

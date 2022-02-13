@@ -114,7 +114,9 @@ span.themeK {
     font-size: smaller;
 }
 
-div.display div.edit {
+div.display div.edit,
+div.display div.matchwords,
+div.display div.matchsummary{
     display: none;
 }
 
@@ -122,12 +124,12 @@ div.display.edit div.edit {
     display: block;
 }
 
-div.display.summary div.matchwords {
-    display: none;
+div.display.summary div.matchsummary {
+    display: block;
 }
 
-div.display.words div.matchsummary {
-    display: none;
+div.display.words div.matchwords {
+    display: block;
 }
 
 div.edit {
