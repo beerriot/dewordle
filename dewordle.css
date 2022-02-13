@@ -67,7 +67,7 @@ span.themeK {
     display: none;
 }
 
-#addrow, #reset, #share, #done {
+#reset, #share, #done {
     text-align: center;
     font-size: 64pt;
 }
@@ -103,6 +103,35 @@ span.themeK {
     font-size: smaller;
 }
 
+div.display div.edit {
+    display: none;
+}
+
+div.display.edit div.edit {
+    display: block;
+}
+
+div.display.summary div.matchwords {
+    display: none;
+}
+
+div.display.words div.matchsummary {
+    display: none;
+}
+
+div.edit {
+    width: 100%;
+    position: relative;
+}
+
+.autocomplete {
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%)
+}
+
 .matchcount.calculating {
     color: #999999;
 }
@@ -126,12 +155,4 @@ span.themeK {
 
 #paste {
     width: 100%;
-}
-
-.autocomplete {
-    display: block;
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%)
 }

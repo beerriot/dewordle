@@ -16,35 +16,41 @@ function unpackBase64(str) {
     return words;
 }
 
-var square = document.getElementById("gamesquare");
-var board = square.parentElement;
-square.removeAttribute("id");
+var board = document.getElementById("gameboard");
+var square = board.getElementsByClassName("gamesquare")[0];
 square.remove();
 
-var display = document.getElementById("display");
-display.removeAttribute("id");
+var leftpad = board.getElementsByClassName("leftpad")[0];
+leftpad.remove();
+
+var rightpad = board.getElementsByClassName("rightpad")[0];
+rightpad.remove();
+
+var display = document.getElementsByClassName("display")[0];
 display.remove();
 
 var buildrow = document.getElementById("buildrow");
+var buildright = buildrow.getElementsByClassName("rightpad")[0];
 var build = [];
 for (var i = 0; i < 5; i++) {
     build.push(square.cloneNode(true));
     build[i].onpointerdown = inputDownHandler;
     build[i].onpointerup = buildUp;
     build[i].ontouchend = noZoom;
-    buildrow.append(build[i]);
+    buildright.before(build[i]);
 }
 
 var answerrow = document.getElementById("answerrow");
+var answerright = answerrow.getElementsByClassName("rightpad")[0];
 var answer = [];
 for (var i = 0; i < 5; i++) {
     answer.push(square.cloneNode(true));
     answer[i].ontouchend = noZoom;
     answer[i].classList.add("correct");
-    answerrow.append(answer[i]);
+    answerright.before(answer[i]);
 }
 var answerdisplay = display.cloneNode(true);
-answerdisplay.removeAttribute("style");
+answerdisplay.classList.add("summary");
 answerrow.append(answerdisplay);
 addEditListener(answerdisplay, 0);
 
@@ -82,6 +88,26 @@ function addrowUp(ev) {
     displayRemaining();
 }
 
+function eraserowUp(i) {
+    return function(ev) {
+        for (t of patterns[i].tiles) {
+            t.remove();
+        }
+        patterns[i].display.previousElementSibling.remove(); //rightpad
+        patterns[i].display.previousElementSibling.remove(); //leftpad
+        patterns[i].display.remove();
+
+        patterns.splice(i, 1);
+        remainingWords = rebuildRemainingWords();
+
+        if (remainingWords.length > 1) {
+            requestGuesses(true);
+        } else {
+            requestGuesses(false);
+        }
+    }
+}
+
 function resetBuild() {
     for (var b of build) {
         b.classList.remove("correct");
@@ -95,13 +121,15 @@ function resetAnswer() {
         a.getElementsByTagName("text")[0].innerHTML = "";
     }
 
+    answerdisplay.classList.remove("words");
+    answerdisplay.classList.add("summary");
     answerdisplay.getElementsByClassName("matchcount")[0]
         .innerHTML = ""+remainingWords.length;
-    answerdisplay.getElementsByClassName("matchsummary")[0]
-        .removeAttribute("style");
 }
 
 function dupeBuild() {
+    board.append(leftpad.cloneNode(true));
+
     for (var i = 0; i < 5; i++) {
         var clone = build[i].cloneNode(true);
         if (!(clone.classList.contains("correct")
@@ -112,6 +140,12 @@ function dupeBuild() {
         patterns[patterns.length-1].tiles.push(clone);
         board.append(clone);
     }
+
+    var right = rightpad.cloneNode(true);
+    var erase = right.getElementsByClassName("erase")[0];
+    erase.onpointerdown = inputDownHandler;
+    erase.onpointerup = eraserowUp(patterns.length-1);
+    board.append(right);
 
     board.append(patterns[patterns.length-1].display);
 }
@@ -193,15 +227,13 @@ function rebuildRemainingWords() {
     return words;
 }
 
-function hideEdit(e) {
-    for (c of this.parentElement.children) {
-        c.setAttribute("style", "display: none;");
-    }
+function hideEdit(e, i) {
+    patterns[i].display.classList.remove("edit");
 }
 
-function maybeHideEdit(e) {
+function maybeHideEdit(e, i) {
     if (!this.parentElement.contains(e.relatedTarget)) {
-        hideEdit.call(this, e);
+        hideEdit.call(this, e, i);
     }
 }
 
@@ -218,7 +250,7 @@ function setWord(e, i, editor, autocomplete) {
         }
 
         displayRemaining();
-        hideEdit.call(this, e);
+        hideEdit.call(this, e, i);
     }
 }
 
@@ -227,7 +259,7 @@ function editKeyUp(e, i, editor, autocomplete) {
         setWord.call(this, e, i, editor, autocomplete);
     } else if (e.key === "Escape") {
         this.value = patterns[i].guess || '';
-        hideEdit.call(this, e);
+        hideEdit.call(this, e, i);
     }
 }
 
@@ -235,7 +267,9 @@ function addEditListener(display, i) {
     var editor = display.getElementsByClassName("editor")[0];
     var autocomplete = display.getElementsByClassName("autocomplete")[0];
 
-    editor.onblur = maybeHideEdit;
+    editor.onblur = function(e) {
+        maybeHideEdit.call(this, e, i);
+    };
     editor.oninput = function() {
         if (patterns[i].guesses) {
             var search = this.value.toUpperCase();
@@ -267,13 +301,14 @@ function addEditListener(display, i) {
     }
 
     var keyup = function(e) {
-        console.log("keyup: "+e.key);
         editKeyUp.call(this, e, i, editor, autocomplete);
     }
     editor.onkeyup = keyup;
     autocomplete.onkeyup = keyup;
 
-    autocomplete.onblur = maybeHideEdit;
+    autocomplete.onblur = function(e) {
+        maybeHideEdit.call(this, e, i);
+    };
     autocomplete.oninput = function() {
         editor.value = this.value;
     }
@@ -282,12 +317,11 @@ function addEditListener(display, i) {
     }
 
     display.getElementsByClassName("editguess")[0].onclick = function() {
-        editor.removeAttribute("style");
+        patterns[i].display.classList.add("edit");
         editor.focus();
         requestAutocomplete(i);
 
         autocomplete.innerHTML="<option>loading&hellip;</option>";
-        autocomplete.removeAttribute("style");
     }
 }
 
@@ -344,28 +378,12 @@ function setGuessWord(i, rawWord) {
 }
 
 function endGame() {
-    document.getElementById("paste").setAttribute("style", "display: none;");
-
-    if (remainingWords.length == 1) {
-        // win
-        play.setAttribute("style", "display: none;");
-        win.removeAttribute("style");
-
-        addrow.setAttribute("style", "display: none;");
-        share.removeAttribute("style");
-
-        var word = dict.words[remainingWords[0]];
-        if (!patterns[0].guess) {
-            for (i in word) {
-                patterns[0].tiles[i].getElementsByTagName("text")[0]
-                    .innerHTML = word[i];
-            }
+    var word = dict.words[remainingWords[0]];
+    if (!patterns[0].guess) {
+        for (i in word) {
+            patterns[0].tiles[i].getElementsByTagName("text")[0]
+                .innerHTML = word[i];
         }
-    } else {
-        // lose
-        wordsLeft.innerText = "no";
-        addrow.setAttribute("style", "display: none;");
-        done.removeAttribute("style");
     }
 }
 
@@ -416,7 +434,6 @@ function gameDiagram() {
 function resetUp() {
     share.setAttribute("style", "display: none;");
     done.setAttribute("style", "display: none;");
-    addrow.removeAttribute("style");
 
     win.setAttribute("style", "display:none;");
     play.removeAttribute("style");
@@ -539,96 +556,113 @@ function initPatterns(start) {
 var generation = 0;
 var guesser = new Worker("guesser.js");
 guesser.onmessage = function(m) {
-    if (m.data.type == "count") {
-        for (var i in patterns) {
-            if (patterns[i].pattern == m.data.pattern) {
-                patterns[i].display.removeAttribute("style");
-                var count =
-                    patterns[i].display.getElementsByClassName("matchcount")[0];
-                count.innerText = ""+m.data.count;
-                if (m.data.generation == generation) {
-                    count.classList.remove("calculating");
-                }
-            }
-        }
-    } else if (m.data.type == "words") {
-        var words = [];
-        for (var j in m.data.words) { words.push(j); }
-
-        for (var i in patterns) {
-            if (patterns[i].pattern == m.data.pattern) {
-                if (!(patterns[i].guess &&
-                      patterns[i].guess in m.data.words)) {
-                    var first = words.shift();
-                    for (var j in first) {
-                        patterns[i].tiles[j]
-                            .getElementsByTagName("text")[0]
-                            .innerHTML = first[j];
-                    }
-                } else {
-                    words.splice(words.indexOf(patterns[i].guess), 1);
-                }
-
-                if (words.length > 0) {
-                    patterns[i].display.removeAttribute("style");
-                    patterns[i].display
-                        .getElementsByClassName("matchsummary")[0]
-                        .setAttribute("style", "display: none");
-                    patterns[i].display
-                        .getElementsByClassName("matchwords")[0]
-                        .removeAttribute("style");
-
-                    if (words.length <= 8) {
-                        patterns[i].display
-                            .getElementsByClassName("matchshort")[0]
-                            .innerHTML = words.join(", ");
-                    } else {
-                        var firstSix = words.slice(0, 6);
-                        patterns[i].display
-                            .getElementsByClassName("matchshort")[0]
-                            .innerHTML = firstSix.join(", ");
-
-                        patterns[i].display
-                            .getElementsByClassName("matchrest")[0]
-                            .removeAttribute("style");
-                        patterns[i].display
-                            .getElementsByClassName("matchlong")[0]
-                            .innerHTML = ", "+words.slice(6).join(", ");
-
-                        var preview = patterns[i].display
-                            .getElementsByClassName("matchexpand")[0];;
-                        preview.onclick = function() {
-                            var rest = this.parentElement;
-                            if (rest.classList.contains("less")) {
-                                rest.classList.remove("less");
-                                rest.classList.add("more");
-                            } else {
-                                rest.classList.remove("more");
-                                rest.classList.add("less");
-                            }
-                        }
-                    }
-                } else {
-                    patterns[i].display
-                        .getElementsByClassName("matchsummary")[0]
-                        .setAttribute("style", "display: none;");
-                }
-            }
-        }
-    } else if (m.data.type == "autocomplete") {
-        if (m.data.generation == generation) {
-            patterns[m.data.patterni].guesses = m.data.guesses.sort();
-            var options = patterns[m.data.patterni].guesses.map(
-                (g) => '<option value="'+g+'">'+g+'</option>');
-            patterns[m.data.patterni]
-                .display
-                .getElementsByClassName("autocomplete")[0]
-                .innerHTML = options;
-        }
-    } else {
+    switch (m.data.type) {
+    case "count":
+        onCountMessage(m);
+        break;
+    case "words":
+        onWordsMessage(m);
+        break;
+    case "autocomplete":
+        onAutocompleteMessage(m);
+        break;
+    default:
         console.log("Unknown message: "+m);
     }
-};
+}
+
+function onCountMessage(m) {
+    for (var i in patterns) {
+        if (patterns[i].pattern == m.data.pattern) {
+            patterns[i].display.classList.remove("words");
+            patterns[i].display.classList.add("summary");
+
+            var count =
+                patterns[i].display.getElementsByClassName("matchcount")[0];
+            count.innerText = ""+m.data.count;
+            if (m.data.generation == generation) {
+                count.classList.remove("calculating");
+            }
+        }
+    }
+}
+
+function onWordsMessage(m) {
+    var words = [];
+    for (var j in m.data.words) { words.push(j); }
+
+    for (var i in patterns) {
+        if (patterns[i].pattern == m.data.pattern) {
+            if (!(patterns[i].guess &&
+                  patterns[i].guess in m.data.words)) {
+                var first = words.shift();
+                for (var j in first) {
+                    patterns[i].tiles[j]
+                        .getElementsByTagName("text")[0]
+                        .innerHTML = first[j];
+                }
+            } else {
+                words.splice(words.indexOf(patterns[i].guess), 1);
+            }
+
+            var mc = patterns[i].display
+                .getElementsByClassName("matchcount")[0];
+            mc.classList.remove("calculating");
+            mc.innerHTML = ""+words.length;
+
+            if (words.length > 0) {
+                patterns[i].display.classList.remove("summary");
+                patterns[i].display.classList.add("words");
+
+                if (words.length <= 8) {
+                    patterns[i].display
+                        .getElementsByClassName("matchshort")[0]
+                        .innerHTML = words.join(", ");
+                } else {
+                    var firstSix = words.slice(0, 6);
+                    patterns[i].display
+                        .getElementsByClassName("matchshort")[0]
+                        .innerHTML = firstSix.join(", ");
+
+                    patterns[i].display
+                        .getElementsByClassName("matchrest")[0]
+                        .removeAttribute("style");
+                    patterns[i].display
+                        .getElementsByClassName("matchlong")[0]
+                        .innerHTML = ", "+words.slice(6).join(", ");
+
+                    var preview = patterns[i].display
+                        .getElementsByClassName("matchexpand")[0];;
+                    preview.onclick = function() {
+                        var rest = this.parentElement;
+                        if (rest.classList.contains("less")) {
+                            rest.classList.remove("less");
+                            rest.classList.add("more");
+                        } else {
+                            rest.classList.remove("more");
+                            rest.classList.add("less");
+                        }
+                    }
+                }
+            } else {
+                patterns[i].display.classList.remove("words");
+                patterns[i].display.classList.add("summary");
+            }
+        }
+    }
+}
+
+function onAutocompleteMessage(m) {
+    if (m.data.generation == generation) {
+        patterns[m.data.patterni].guesses = m.data.guesses.sort();
+        var options = patterns[m.data.patterni].guesses.map(
+            (g) => '<option value="'+g+'">'+g+'</option>');
+        patterns[m.data.patterni]
+            .display
+            .getElementsByClassName("autocomplete")[0]
+            .innerHTML = options;
+    }
+}
 
 guesser.onerror = function(e) {
     console.log("guesser error: "+e);
