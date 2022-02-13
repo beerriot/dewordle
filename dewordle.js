@@ -74,9 +74,6 @@ var reset = document.getElementById("reset");
 reset.onpointerdown = inputDownHandler;
 reset.onpointerup = resetUp;
 
-var win = document.getElementById("win");
-var done = document.getElementById("done");
-
 function addrowUp(ev) {
     if (!addPattern()) {
         endGame();
@@ -434,11 +431,6 @@ function gameDiagram() {
 
 function resetUp() {
     share.setAttribute("style", "display: none;");
-    done.setAttribute("style", "display: none;");
-
-    win.setAttribute("style", "display:none;");
-
-    document.getElementById("paste").removeAttribute("style");
 
     board.innerHTML = "";
     resetBuild();
@@ -448,8 +440,6 @@ function resetUp() {
     displayRemaining();
     resetGuesser();
 }
-
-var wordsLeft = document.getElementById("wordsleft");
 
 // The square emoji are represented as two UTF-16 characters. This is
 // a map from the "interesting" half of those pairs to the ASCII
