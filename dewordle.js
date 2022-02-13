@@ -85,14 +85,8 @@ function addrowUp(ev) {
 }
 
 function eraserowUp(ev) {
-    var i = 1;
-    for (var prev = this.parentElement.previousElementSibling;
-         prev;
-         prev = prev.previousElementSibling) {
-        if (prev.classList.contains("rightpad")) {
-            i++;
-        }
-    }
+    // the display is the next element
+    var i = this.parentElement.nextElementSibling.dataset.patterni;
 
     for (t of patterns[i].tiles) {
         t.remove();
