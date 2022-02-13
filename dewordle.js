@@ -400,7 +400,27 @@ function endGame() {
 }
 
 function shareUp() {
-    navigator.clipboard.writeText("I found a "+(patterns.length-1)+" pattern DeWordle!"+gameDiagram()).then(function() { alert("Copied to clipboard!"); });
+    var message;
+    if (remainingWords.length == 1) {
+        if (patterns.reduce((acc, p) => acc & (!p.guess), true)) {
+            // only colors, no guesses
+            message = "I found a "+(patterns.length-1)+
+                " pattern DeWordle!";
+        } else if (patterns.reduce((acc, p) => acc & (!!p.guess), true)) {
+            message = "My plays for yesterday's Wordle:";
+        } else {
+            message = "Can you guess the missing words here?";
+        }
+    } else {
+        message = "Only "+remainingWords.length+
+            " answers fit this Wordle guess pattern. What are they?";
+    }
+
+    message += gameDiagram();
+    message += "\n"+window.location.href;
+
+    navigator.clipboard.writeText(message)
+        .then(function() { alert("Copied to clipboard!"); });
 }
 
 const emoji = {
@@ -438,6 +458,12 @@ function gameDiagram() {
                 diagram += emoji["incorrect"+theme];
             }
         }
+
+        diagram += patterns[i].guess ? ' '+patterns[i].guess : '';
+    }
+
+    if (patterns[0].guess) {
+        diagram += emoji["correct"+pallete].repeat(5)+' '+patterns[0].guess;
     }
 
     return diagram;
