@@ -102,6 +102,10 @@ function eraserowUp(ev) {
     patterns[i].display.remove();
 
     patterns.splice(i, 1);
+    for (var i in patterns) {
+        patterns[i].display.dataset.patterni = i;
+    }
+
     remainingWords = rebuildRemainingWords();
     var fragment = hashFragment();
     window.history.replaceState('', '', fragment ? "#"+fragment : '');
@@ -232,20 +236,33 @@ function rebuildRemainingWords() {
     return words;
 }
 
-function hideEdit(e, i) {
-    patterns[i].display.classList.remove("edit");
+function showEdit(e) {
+    var display = this.closest(".display");
+    display.classList.add("edit");
+    display.getElementsByClassName("editor")[0].focus();
+
+    display.getElementsByClassName("autocomplete")
+        .innerHTML="<option>loading&hellip;</option>";
+    requestAutocomplete(display.dataset.patterni);
 }
 
-function maybeHideEdit(e, i) {
+function hideEdit(e) {
+    this.closest(".display").classList.remove("edit");
+}
+
+function maybeHideEdit(e) {
     if (!this.parentElement.contains(e.relatedTarget)) {
-        hideEdit.call(this, e, i);
+        hideEdit.call(this, e);
     }
 }
 
-function setWord(e, i, editor, autocomplete) {
+function setWord(e) {
+    var display = this.closest(".display");
+    var i = display.dataset.patterni;
+
     if (setGuessWord(i, this.value)) {
         window.history.replaceState('', '', "#"+hashFragment());
-        this.parentElement.children[0].value = this.value;
+        display.getElementsByClassName("editor")[0].value = this.value;
 
         if (remainingWords.length == 1) {
             endGame();
@@ -255,79 +272,75 @@ function setWord(e, i, editor, autocomplete) {
         }
 
         displayRemaining();
-        hideEdit.call(this, e, i);
+        hideEdit.call(this, e);
     }
 }
 
-function editKeyUp(e, i, editor, autocomplete) {
+function editKeyUp(e) {
     if (e.key === "Enter") {
-        setWord.call(this, e, i, editor, autocomplete);
+        setWord.call(this, e);
     } else if (e.key === "Escape") {
-        this.value = patterns[i].guess || '';
-        hideEdit.call(this, e, i);
+        this.value =
+            patterns[this.closest(".display").dataset.patterni].guess || '';
+        hideEdit.call(this, e);
+    }
+}
+
+function editKeyDown(e) {
+    var display = this.closest(".display");
+    var autocomplete = display.getElementsByClassName("autocomplete")[0];
+
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        var selected = autocomplete.querySelector("option[selected=true]");
+        if (selected) {
+            var next = (e.key == "ArrowDown")
+                ? selected.nextElementSibling
+                : selected.previousElementSibling;
+            if (next) {
+                selected.removeAttribute("selected");
+                next.setAttribute("selected", "true");
+                this.value = next.value;
+            }
+        } else {
+            autocomplete.children[0].setAttribute("selected", "true");
+            this.value = autocomplete.children[0].value;
+        }
+    }
+}
+
+function editOnInput(e) {
+    var display = this.closest(".display");
+    var i = display.dataset.patterni;
+    if (patterns[i].guesses) {
+        var search = this.value.toUpperCase();
+        var optsHTML = patterns[i].guesses.map(
+            (g) => (g.indexOf(search) >= 0)
+                ? '<option value="'+g+'">'+g+'</option>' : '').join('');
+        display.getElementsByClassName("autocomplete")[0]
+            .innerHTML = optsHTML;
     }
 }
 
 function addEditListener(display, i) {
+    display.dataset.patterni = i;
     var editor = display.getElementsByClassName("editor")[0];
     var autocomplete = display.getElementsByClassName("autocomplete")[0];
 
-    editor.onblur = function(e) {
-        maybeHideEdit.call(this, e, i);
-    };
-    editor.oninput = function() {
-        if (patterns[i].guesses) {
-            var search = this.value.toUpperCase();
-            var optsHTML = patterns[i].guesses.map(
-                (g) => (g.indexOf(search) >= 0)
-                    ? '<option value="'+g+'">'+g+'</option>' : '').join('');
-            autocomplete.innerHTML = optsHTML;
-        }
-    }
+    editor.onblur = maybeHideEdit;
+    editor.oninput = editOnInput;
+    editor.onkeydown = editKeyDown;
 
-    editor.onkeydown = function(e) {
-        if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-            e.preventDefault();
-            var selected = autocomplete.querySelector("option[selected=true]");
-            if (selected) {
-                var next = (e.key == "ArrowDown")
-                    ? selected.nextElementSibling
-                    : selected.previousElementSibling;
-                if (next) {
-                    selected.removeAttribute("selected");
-                    next.setAttribute("selected", "true");
-                    this.value = next.value;
-                }
-            } else {
-                autocomplete.children[0].setAttribute("selected", "true");
-                this.value = autocomplete.children[0].value;
-            }
-        }
-    }
+    editor.onkeyup = editKeyUp;
+    autocomplete.onkeyup = editKeyUp;
 
-    var keyup = function(e) {
-        editKeyUp.call(this, e, i, editor, autocomplete);
-    }
-    editor.onkeyup = keyup;
-    autocomplete.onkeyup = keyup;
-
-    autocomplete.onblur = function(e) {
-        maybeHideEdit.call(this, e, i);
-    };
+    autocomplete.onblur = maybeHideEdit;
     autocomplete.oninput = function() {
         editor.value = this.value;
     }
-    autocomplete.onclick = function(e) {
-        setWord.call(this, e, i, editor, autocomplete);
-    }
+    autocomplete.onclick = setWord;
 
-    display.getElementsByClassName("editguess")[0].onclick = function() {
-        patterns[i].display.classList.add("edit");
-        editor.focus();
-        requestAutocomplete(i);
-
-        autocomplete.innerHTML="<option>loading&hellip;</option>";
-    }
+    display.getElementsByClassName("editguess")[0].onclick = showEdit;
 }
 
 function setGuessWord(i, rawWord) {
