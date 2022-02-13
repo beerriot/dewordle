@@ -8,7 +8,7 @@ body.themeK, body.themeK input {
     color: #ffffff;
 }
 
-svg {
+.gamesquare svg {
     border: dotted 2px #999999;
 }
 
@@ -45,6 +45,22 @@ svg {
 
 svg {
     margin: 3px;
+}
+
+svg text {
+    font-family: Helvetica, Arial, sans-serif;
+    text-anchor: middle;
+    dominant-baseline: central;
+}
+
+.themeW svg#addrow text,
+.themeW svg.erase text {
+    fill: #000000;
+}
+
+.themeK svg#addrow text,
+.themeK svg.erase text {
+    fill: #ffffff;
 }
 
 span.themeOB {
