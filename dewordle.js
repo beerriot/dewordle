@@ -722,10 +722,17 @@ function requestGuesses(countOnly) {
     generation++;
     Array.from(document.getElementsByClassName("matchcount"))
         .forEach((x) => x.classList.add("calculating"));
+
+    // 1. Never request guesses for answer pattern - we know that list
+    // already. 2. Never request guesses for the same pattern multiple
+    // times - the same result applies to all of them.
+    var reqpats = new Set();
+    patterns.forEach((p, i) => (i > 0) && reqpats.add(p.pattern));
+
     guesser.postMessage({"type":"filter",
                          "generation": generation,
                          "count_only": countOnly,
-                         "patterns": patterns.map((p) => p.pattern),
+                         "patterns": [...reqpats],
                          "answers": remainingWords});
 }
 

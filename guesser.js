@@ -17,7 +17,9 @@ onmessage = function(m) {
                m.data.answers);
     } else if (m.data.type == "autocomplete") {
         var guesses = [];
-        for (var i in patterns[m.data.patterni].guesses) {
+        // "-1" here becuase pattern 0 (answer pattern) is omitted from
+        // the filter request, so this guesser thread never sees it
+        for (var i in patterns[m.data.patterni-1].guesses) {
             guesses.push(i);
         }
         postMessage({"type": "autocomplete",
