@@ -17,34 +17,21 @@
   <body>
     <div id="content">
       <div class="pure-g">
-        <div class="pure-u-1">
-          <p>
-            <b>DeWordle</b> is a "game" based
-            on <a href="https://www.powerlanguage.co.uk/wordle/">Wordle</a>. In
-            Wordle, you guess words, and it gives you back colored
-            squares. In DeWordle, you "guess" colored squares, and it
-            gives you back words - all the words that might have been
-            Wordle answers in games that could make the same guess
-            patterns! (<a href="https://blog.beerriot.com/2022/01/27/dewordle-the-game/">Read more here.</a>) Rules for
-            what the colors mean are the same (<span class="themeGY">&#x1f7e9;</span><span class="themeOB">&#x1f7e7;</span>:
-            correct letter in correct position, <span class="themeGY">&#x1f7e8;</span><span class="themeOB">&#x1f7e6;</span>:
-            correct letter in wrong position, <span class="themeW">&#x2b1c;&#xfe0f;</span><span class="themeK">&#x2b1b;&#xfe0f;</span>:
-            incorrect letter). See how quickly you can guide it to
-            only one word remaining!
-          </p>
+        <div class="pure-u-1-6">
+          <select id="theme">
+            <option value="GYW">&#x1f7e9;&#x1f7e8;&#x2b1c;&#xfe0f;</option>
+            <option value="GYK">&#x1f7e9;&#x1f7e8;&#x2b1b;&#xfe0f;</option>
+            <option value="OBW">&#x1f7e7;&#x1f7e6;&#x2b1c;&#xfe0f;</option>
+            <option value="OBK">&#x1f7e7;&#x1f7e6;&#x2b1b;&#xfe0f;</option>
+          </select>
+        </div>
+        <div class="pure-u-2-3">
+          <h1 class="centerme"><b>DeWordle</b></h1>
+        </div>
+        <div class="pure-u-1-6">
+          <a href="/help.html">help</a>
         </div>
         <div id="gamecontent">
-          <div class="pure-u-1">
-            <div class="tapme centerme">
-              <label for="theme">Colors:</label>
-              <select id="theme">
-                <option value="GYW">&#x1f7e9;&#x1f7e8;&#x2b1c;&#xfe0f;</option>
-                <option value="GYK">&#x1f7e9;&#x1f7e8;&#x2b1b;&#xfe0f;</option>
-                <option value="OBW">&#x1f7e7;&#x1f7e6;&#x2b1c;&#xfe0f;</option>
-                <option value="OBK">&#x1f7e7;&#x1f7e6;&#x2b1b;&#xfe0f;</option>
-              </select>
-            </div>
-          </div>
           <div class="pure-u-1">
             <div id="gameboard" class="pure-g">
 
@@ -141,8 +128,10 @@
           </p>
         </div>
       </div>
-      <script language="javascript" src="/map.js"></script>
-      <script language="javascript" src="/common.js"></script>
-      <script language="javascript" src="/dewordle.js"></script>
+    </div>
+    <script language="javascript" src="/theme.js"></script>
+    <script language="javascript" src="/map.js"></script>
+    <script language="javascript" src="/common.js"></script>
+    <script language="javascript" src="/dewordle.js"></script>
   </body>
 </html>
