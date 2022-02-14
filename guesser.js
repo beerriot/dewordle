@@ -17,24 +17,22 @@ onmessage = function(m) {
                m.data.answers);
     } else if (m.data.type == "autocomplete") {
         var guesses = [];
-        // "-1" here becuase pattern 0 (answer pattern) is omitted from
-        // the filter request, so this guesser thread never sees it
-        for (var i in patterns[m.data.patterni-1].guesses) {
+        for (var i in patterns[m.data.pattern].guesses) {
             guesses.push(i);
         }
         postMessage({"type": "autocomplete",
                      "generation": m.data.generation,
-                     "patterni": m.data.patterni,
+                     "pattern": m.data.pattern,
                      "guesses": guesses});
     } else {
         console.log("Unknown message: m.data");
     }
 };
 
-var patterns = [];
+var patterns = {};
 var answers = [];
 function reset() {
-    patterns = [];
+    patterns = {};
     answers = [];
 }
 
@@ -73,35 +71,42 @@ function filter(generation, count_only, newPatterns, newAnswers) {
     var compare = compareAnswers(newAnswers);
     answers = newAnswers;
 
-    for (var i in newPatterns) {
-        if (i >= patterns.length || !compare.subset ||
-            patterns[i].pattern != newPatterns[i]) {
-            patterns[i] = {
-                "pattern": newPatterns[i],
-                "guesses": guessesForPattern(newPatterns[i], answers)
+    var filtered = {};
+
+    for (var p of newPatterns) {
+        if (!(p in patterns) || !compare.subset) {
+            filtered[p] = {
+                "pattern": p,
+                "guesses": guessesForPattern(p, answers)
             };
         } else if (!compare.same) {
-            patterns[i].guesses =
-                filterExisting(patterns[i].guesses, answers);
+            filtered[p] = {
+                "pattern": p,
+                "guesses": filterExisting(patterns[p].guesses, answers)
+            };
+        } else {
+            filtered[p] = patterns[p];
         }
 
         if (count_only) {
             var count = 0;
-            for (x in patterns[i].guesses) { count++; }
+            for (x in filtered[p].guesses) { count++; }
             postMessage({"type":"count",
                          "generation": generation,
-                         "pattern": newPatterns[i],
+                         "pattern": p,
                          "count": count});
         } else {
             var guesses = [];
-            for (g in patterns[i].guesses) { guesses.push(g); }
+            for (g in filtered[p].guesses) { guesses.push(g); }
 
             postMessage({"type":"words",
                          "generation": generation,
-                         "pattern": newPatterns[i],
+                         "pattern": p,
                          "words": guesses});
         }
     }
+
+    patterns = filtered;
 }
 
 function filterExisting(guesses, remainingWords) {

@@ -239,7 +239,7 @@ function showEdit(e) {
 
     display.getElementsByClassName("autocomplete")
         .innerHTML="<option>loading&hellip;</option>";
-    requestAutocomplete(display.dataset.patterni);
+    requestAutocomplete(patterns[display.dataset.patterni].pattern);
 }
 
 function hideEdit(e) {
@@ -700,13 +700,19 @@ function hideMatchWords(i) {
 
 function onAutocompleteMessage(m) {
     if (m.data.generation == generation) {
-        patterns[m.data.patterni].guesses = m.data.guesses.sort();
-        var options = patterns[m.data.patterni].guesses.map(
-            (g) => '<option value="'+g+'">'+g+'</option>');
-        patterns[m.data.patterni]
-            .display
-            .getElementsByClassName("autocomplete")[0]
-            .innerHTML = options;
+        for (i in patterns) {
+            if (patterns[i].pattern == m.data.pattern &&
+                patterns[i].display.classList.contains("edit")) {
+                patterns[i].guesses = m.data.guesses.sort();
+                var options = patterns[i].guesses.map(
+                    (g) => '<option value="'+g+'">'+g+'</option>');
+                patterns[i]
+                    .display
+                    .getElementsByClassName("autocomplete")[0]
+                    .innerHTML = options;
+                break;
+            }
+        }
     }
 }
 
@@ -732,10 +738,10 @@ function requestGuesses(countOnly) {
                          "answers": remainingWords});
 }
 
-function requestAutocomplete(patterni) {
+function requestAutocomplete(pattern) {
     guesser.postMessage({"type":"autocomplete",
                          "generation": generation,
-                         "patterni": patterni});
+                         "pattern": pattern});
 }
 
 function resetGuesser() {
