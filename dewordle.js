@@ -76,7 +76,6 @@ reset.onpointerup = resetUp;
 
 function addrowUp(ev) {
     if (!addPattern()) {
-        endGame();
         requestGuesses(false);
     } else {
         requestGuesses(true);
@@ -101,6 +100,7 @@ function eraserowUp(ev) {
     }
 
     remainingWords = rebuildRemainingWords();
+
     var fragment = hashFragment();
     window.history.replaceState('', '', fragment ? "#"+fragment : '');
 
@@ -109,6 +109,8 @@ function eraserowUp(ev) {
     } else {
         requestGuesses(false);
     }
+
+    displayRemaining();
 }
 
 function resetBuild() {
@@ -259,7 +261,6 @@ function setWord(e) {
         display.getElementsByClassName("editor")[0].value = this.value;
 
         if (remainingWords.length == 1) {
-            endGame();
             requestGuesses(false);
         } else {
             requestGuesses(true);
@@ -387,16 +388,6 @@ function setGuessWord(i, rawWord) {
     }
 
     return success;
-}
-
-function endGame() {
-    var word = dict.words[remainingWords[0]];
-    if (!patterns[0].guess) {
-        for (i in word) {
-            patterns[0].tiles[i].getElementsByTagName("text")[0]
-                .innerHTML = word[i];
-        }
-    }
 }
 
 function shareUp() {
@@ -571,7 +562,6 @@ function initPatterns(start) {
 
     if (cleanPattern.length > 0) {
         if (!play) {
-            endGame();
             requestGuesses(false);
         } else {
             requestGuesses(true);
@@ -686,7 +676,7 @@ function previewExpand() {
 }
 
 function showMatchCount(i) {
-    hideMatchWords();
+    hideMatchWords(i);
     patterns[i].display.classList.add("summary");
 }
 
@@ -755,8 +745,25 @@ window.history.replaceState(
 displayRemaining();
 
 function displayRemaining() {
-    fillMatchCount(0, remainingWords.length, generation);
-    fillMatchWords(0, remainingWords);
+    if (remainingWords.length == 1) {
+        hideMatchCount(0);
+
+        var word = dict.words[remainingWords[0]];
+        if (!patterns[0].guess) {
+            for (i in word) {
+                patterns[0].tiles[i].getElementsByTagName("text")[0]
+                    .innerHTML = word[i];
+            }
+        }
+    } else {
+        if (!patterns[0].guess) {
+            for (t of patterns[0].tiles) {
+                t.getElementsByTagName("text")[0].innerHTML = '';
+            }
+        }
+        fillMatchCount(0, remainingWords.length, generation);
+        showMatchCount(0);
+    }
 }
 
 document.getElementById("theme").onchange = function() {
@@ -825,8 +832,9 @@ document.getElementById("paste").onchange = function() {
     }
     this.value = "";
 
+    displayRemaining();
+
     if (!play) {
-        endGame();
         requestGuesses(false);
     } else {
         requestGuesses(true);
