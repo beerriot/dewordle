@@ -15,6 +15,13 @@ h1 {
     font-size: x-large;
 }
 
+.themeK a:link {
+    color: lightskyblue
+}
+.themeK a:visited {
+    color: lightcoral
+}
+
 .gamesquare svg {
     border: dotted 2px #999999;
 }
