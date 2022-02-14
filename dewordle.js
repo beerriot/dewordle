@@ -739,9 +739,18 @@ function requestGuesses(countOnly) {
 }
 
 function requestAutocomplete(pattern) {
-    guesser.postMessage({"type":"autocomplete",
-                         "generation": generation,
-                         "pattern": pattern});
+    if (pattern != 242) {
+        guesser.postMessage({"type":"autocomplete",
+                             "generation": generation,
+                             "pattern": pattern});
+    } else {
+        // if we're dealing with the answer pattern, we already know
+        // the answer
+        onAutocompleteMessage({"data": {
+            "pattern": 242,
+            "guesses": remainingWords.map((i) => dict.words[i]),
+            "generation": generation}});
+    }
 }
 
 function resetGuesser() {
