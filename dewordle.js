@@ -847,7 +847,15 @@ document.getElementById("paste").onchange = function() {
         }
 
         if (j == 5) {
-            play &= addPattern();
+            if (build.reduce(
+                (acc, b) => acc & b.classList.contains("correct"),
+                true)) {
+                // don't add the 242 answer pattern
+                resetBuild();
+            } else {
+                play &= addPattern();
+            }
+
             j = 0;
         }
     }
