@@ -595,6 +595,12 @@ function onCountMessage(m) {
             patterns[i].display.classList.remove("words");
             patterns[i].display.classList.add("summary");
 
+            if (!patterns[i].guess) {
+                for (t of patterns[i].tiles) {
+                    t.getElementsByTagName("text")[0].innerHTML = '';
+                }
+            }
+
             fillMatchCount(i, m.data.count, m.data.generation);
         }
     }
