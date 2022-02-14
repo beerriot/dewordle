@@ -628,9 +628,14 @@ function onWordsMessage(m) {
             fillMatchWords(i, m.data.words);
 
             if (count == 1) {
-                // only one word - no further details needed
-                hideMatchCount(i);
-                hideMatchWords(i);
+                if (patterns[i].guess) {
+                    // want to be able to edit
+                    showMatchCount(i);
+                } else {
+                    // edit wouldn't do anything
+                    hideMatchCount(i);
+                    hideMatchWords(i);
+                }
             } else if (count > 1) {
                 showMatchWords(i);
             } else {
@@ -766,15 +771,20 @@ window.history.replaceState(
 displayRemaining();
 
 function displayRemaining() {
+    fillMatchCount(0, remainingWords.length, generation);
     if (remainingWords.length == 1) {
-        hideMatchCount(0);
-
-        var word = dict.words[remainingWords[0]];
         if (!patterns[0].guess) {
+            hideMatchCount(0);
+
+            var word = dict.words[remainingWords[0]];
             for (i in word) {
                 patterns[0].tiles[i].getElementsByTagName("text")[0]
                     .innerHTML = word[i];
             }
+        } else {
+            // want to be able to edit (and since there is a guess, we
+            // don't need to set the text in the tiles)
+            showMatchCount(0);
         }
     } else {
         if (!patterns[0].guess) {
@@ -782,7 +792,6 @@ function displayRemaining() {
                 t.getElementsByTagName("text")[0].innerHTML = '';
             }
         }
-        fillMatchCount(0, remainingWords.length, generation);
         showMatchCount(0);
     }
 }
