@@ -454,7 +454,7 @@ function gameDiagram() {
     }
 
     if (patterns[0].guess) {
-        diagram += emoji["correct"+pallete].repeat(5)+' '+patterns[0].guess;
+        diagram += emoji["correct"+palette].repeat(5)+' '+patterns[0].guess;
     }
 
     return diagram;
